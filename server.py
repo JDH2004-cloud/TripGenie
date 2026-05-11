@@ -1,0 +1,128 @@
+import json
+import os
+from http import HTTPStatus
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+
+import anthropic
+
+
+HOST = os.getenv("HOST", "127.0.0.1")
+PORT = int(os.getenv("PORT", "8000"))
+MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6")
+BASE_DIR = Path(__file__).resolve().parent
+
+
+def build_itinerary(destination, trip_length="3 days"):
+    client = anthropic.Anthropic()
+
+    prompt = f"""
+Create a detailed {trip_length} travel itinerary for {destination}.
+
+Include:
+- A practical {trip_length} schedule with morning, afternoon, and evening plans
+- Specific kinds of neighborhoods, landmarks, food experiences, and cultural stops
+- Pacing notes so the trip does not feel rushed
+- Local transportation suggestions
+- A short packing list section
+- A short budget tips section for young budget travelers
+
+Write the itinerary in clear, traveler-friendly Markdown.
+""".strip()
+
+    message = client.messages.create(
+        model=MODEL,
+        max_tokens=2500,
+        system=(
+            "You are an expert travel planner. Build specific, useful itineraries "
+            "with realistic pacing and practical advice."
+        ),
+        messages=[{"role": "user", "content": prompt}],
+    )
+
+    return "\n".join(
+        block.text for block in message.content if getattr(block, "type", None) == "text"
+    )
+
+
+class TravelRequestHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path in ("/", "/index.html"):
+            self.serve_index()
+            return
+
+        self.send_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
+
+    def do_POST(self):
+        if self.path != "/api/itinerary":
+            self.send_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
+            return
+
+        if not os.getenv("ANTHROPIC_API_KEY"):
+            self.send_json(
+                {"error": "Set the ANTHROPIC_API_KEY environment variable first."},
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+            )
+            return
+
+        try:
+            content_length = int(self.headers.get("Content-Length", "0"))
+            payload = json.loads(self.rfile.read(content_length) or b"{}")
+        except (ValueError, json.JSONDecodeError):
+            self.send_json({"error": "Request body must be valid JSON."}, HTTPStatus.BAD_REQUEST)
+            return
+
+        destination = str(payload.get("destination", "")).strip()
+        trip_length = str(payload.get("tripLength", "3 days")).strip()
+        if not destination:
+            self.send_json({"error": "Destination is required."}, HTTPStatus.BAD_REQUEST)
+            return
+        if trip_length not in {"3 days", "5 days", "1 week"}:
+            trip_length = "3 days"
+
+        try:
+            itinerary = build_itinerary(destination, trip_length)
+        except anthropic.APIError as exc:
+            self.send_json({"error": f"Anthropic API error: {exc}"}, HTTPStatus.BAD_GATEWAY)
+            return
+        except Exception as exc:
+            self.send_json({"error": f"Could not generate an itinerary: {exc}"}, HTTPStatus.INTERNAL_SERVER_ERROR)
+            return
+
+        self.send_json({"destination": destination, "tripLength": trip_length, "itinerary": itinerary})
+
+    def serve_index(self):
+        index_path = BASE_DIR / "index.html"
+        try:
+            content = index_path.read_bytes()
+        except OSError:
+            self.send_json({"error": "index.html not found"}, HTTPStatus.NOT_FOUND)
+            return
+
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(content)))
+        self.end_headers()
+        self.wfile.write(content)
+
+    def send_json(self, payload, status=HTTPStatus.OK):
+        content = json.dumps(payload).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(content)))
+        self.end_headers()
+        self.wfile.write(content)
+
+    def log_message(self, format, *args):
+        print("%s - - %s" % (self.address_string(), format % args))
+
+
+def main():
+    server = ThreadingHTTPServer((HOST, PORT), TravelRequestHandler)
+    print(f"Travel app running at http://{HOST}:{PORT}")
+    print("Press Ctrl+C to stop the server.")
+    server.serve_forever()
+
+
+if __name__ == "__main__":
+    main()

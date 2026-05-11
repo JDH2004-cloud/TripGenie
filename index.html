@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TripGenie | Budget Travel Itinerary Planner</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #102033;
+      --muted: #607286;
+      --soft: #eef7f5;
+      --panel: #ffffff;
+      --line: #d8e7e5;
+      --blue: #1267c4;
+      --blue-dark: #0b4f99;
+      --green: #0f8f70;
+      --green-dark: #08715a;
+      --mint: #dff8ef;
+      --sky: #e8f4ff;
+      --warning: #b45309;
+      --danger: #b42318;
+      --shadow: 0 22px 55px rgba(16, 32, 51, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: #f7fbfb;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .site-shell {
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(232, 244, 255, 0.72), rgba(247, 251, 251, 0) 560px),
+        #f7fbfb;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid rgba(216, 231, 229, 0.75);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav-inner {
+      width: min(1180px, calc(100% - 32px));
+      min-height: 72px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 900;
+      font-size: 1.18rem;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--blue), var(--green));
+      box-shadow: 0 10px 24px rgba(18, 103, 196, 0.24);
+    }
+
+    .logo svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      stroke-width: 2.4;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 750;
+    }
+
+    .nav-cta {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: 8px;
+      padding: 0 16px;
+      color: #ffffff;
+      background: var(--green);
+      box-shadow: 0 12px 24px rgba(15, 143, 112, 0.2);
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: calc(100vh - 72px);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(360px, 440px);
+      gap: 34px;
+      align-items: center;
+      padding: 46px 0 34px;
+    }
+
+    .hero-copy {
+      max-width: 680px;
+    }
+
+    .eyebrow {
+      width: fit-content;
+      margin: 0 0 18px;
+      border: 1px solid rgba(15, 143, 112, 0.24);
+      border-radius: 999px;
+      padding: 7px 12px;
+      color: var(--green-dark);
+      background: rgba(223, 248, 239, 0.86);
+      font-size: 0.82rem;
+      font-weight: 850;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 12ch;
+      font-size: clamp(3.1rem, 7vw, 6.2rem);
+      line-height: 0.94;
+      letter-spacing: 0;
+    }
+
+    .hero-copy > p {
+      max-width: 39rem;
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: 1.15rem;
+      line-height: 1.65;
+    }
+
+    .trust-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      max-width: 620px;
+      margin-top: 30px;
+    }
+
+    .trust-stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.75);
+    }
+
+    .trust-stat strong {
+      display: block;
+      color: var(--blue-dark);
+      font-size: 1.3rem;
+    }
+
+    .trust-stat span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.35;
+    }
+
+    .trip-card {
+      overflow: hidden;
+      border: 1px solid rgba(216, 231, 229, 0.9);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .trip-photo {
+      min-height: 250px;
+      display: flex;
+      align-items: end;
+      padding: 18px;
+      color: #ffffff;
+      background:
+        linear-gradient(180deg, rgba(7, 29, 52, 0.08), rgba(7, 29, 52, 0.72)),
+        url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1100&q=80") center/cover;
+    }
+
+    .trip-photo-label {
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: rgba(6, 29, 48, 0.62);
+      backdrop-filter: blur(10px);
+      font-weight: 800;
+    }
+
+    .search-panel {
+      padding: 22px;
+    }
+
+    form {
+      display: grid;
+      gap: 18px;
+    }
+
+    label {
+      display: block;
+      margin: 0 0 8px;
+      color: var(--ink);
+      font-size: 0.93rem;
+      font-weight: 800;
+    }
+
+    input {
+      width: 100%;
+      min-height: 54px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 15px;
+      color: var(--ink);
+      background: #ffffff;
+      font: inherit;
+      outline: none;
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(18, 103, 196, 0.13);
+    }
+
+    .length-options {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .length-options input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .length-options span {
+      min-height: 48px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      background: #ffffff;
+      font-size: 0.94rem;
+      font-weight: 850;
+      cursor: pointer;
+      transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+    }
+
+    .length-options input:checked + span {
+      border-color: rgba(15, 143, 112, 0.5);
+      color: var(--green-dark);
+      background: var(--mint);
+    }
+
+    button {
+      min-height: 54px;
+      border: 0;
+      border-radius: 8px;
+      padding: 0 18px;
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--blue), var(--green));
+      font: inherit;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 16px 28px rgba(18, 103, 196, 0.22);
+      transition: transform 160ms ease, filter 160ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: saturate(1.08);
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: 0.74;
+      transform: none;
+    }
+
+    .status {
+      min-height: 22px;
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.45;
+    }
+
+    .status.error {
+      color: var(--danger);
+      font-weight: 800;
+    }
+
+    .results-section {
+      padding: 44px 0 62px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 18px;
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: clamp(1.8rem, 4vw, 2.7rem);
+      line-height: 1.08;
+    }
+
+    .section-header p {
+      max-width: 34rem;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .result-card,
+    .side-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 14px 35px rgba(16, 32, 51, 0.08);
+    }
+
+    .result-card {
+      min-height: 560px;
+      max-height: 72vh;
+      overflow: auto;
+      padding: 24px;
+      line-height: 1.65;
+    }
+
+    .side-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .side-card {
+      padding: 20px;
+    }
+
+    .side-card h3,
+    .result-card h1,
+    .result-card h2,
+    .result-card h3 {
+      margin: 0 0 10px;
+      line-height: 1.22;
+      letter-spacing: 0;
+    }
+
+    .result-card h1 {
+      max-width: none;
+      font-size: 1.85rem;
+    }
+
+    .result-card h2 {
+      font-size: 1.35rem;
+      margin-top: 1.25em;
+    }
+
+    .result-card h3,
+    .side-card h3 {
+      font-size: 1.08rem;
+    }
+
+    .result-card p,
+    .result-card ul,
+    .result-card ol,
+    .side-card p,
+    .side-card ul {
+      margin: 0 0 1em;
+    }
+
+    .result-card ul,
+    .result-card ol,
+    .side-card ul {
+      padding-left: 1.2rem;
+    }
+
+    .result-card li,
+    .side-card li {
+      margin-bottom: 0.45rem;
+    }
+
+    .placeholder {
+      min-height: 410px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      border-radius: 999px;
+      padding: 0 10px;
+      color: var(--blue-dark);
+      background: var(--sky);
+      font-size: 0.82rem;
+      font-weight: 850;
+    }
+
+    .side-card .badge {
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 900px) {
+      .nav-links {
+        display: none;
+      }
+
+      .hero {
+        min-height: auto;
+        grid-template-columns: 1fr;
+        padding-top: 34px;
+      }
+
+      h1 {
+        max-width: 11ch;
+      }
+
+      .trust-row,
+      .results-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-header {
+        display: block;
+      }
+
+      .section-header p {
+        margin-top: 10px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      main,
+      .nav-inner {
+        width: min(100% - 24px, 1180px);
+      }
+
+      .hero {
+        padding-top: 24px;
+      }
+
+      .trip-photo {
+        min-height: 210px;
+      }
+
+      .search-panel,
+      .result-card,
+      .side-card {
+        padding: 18px;
+      }
+
+      .length-options {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="site-shell">
+    <nav class="nav" aria-label="Primary navigation">
+      <div class="nav-inner">
+        <a class="brand" href="#top" aria-label="TripGenie home">
+          <span class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M3 11.5 21 4l-7.5 18-2.6-7.8L3 11.5Z"></path>
+              <path d="m11 14 4-4"></path>
+            </svg>
+          </span>
+          <span>TripGenie</span>
+        </a>
+        <div class="nav-links">
+          <a href="#planner">Planner</a>
+          <a href="#results">Itinerary</a>
+          <a href="#packing">Packing</a>
+          <a class="nav-cta" href="#planner">Start planning</a>
+        </div>
+      </div>
+    </nav>
+
+    <main id="top">
+      <section class="hero" aria-label="TripGenie budget travel planner">
+        <div class="hero-copy">
+          <p class="eyebrow">Smart trips for real budgets</p>
+          <h1>Go farther without going broke.</h1>
+          <p>TripGenie turns one destination into a practical route, daily plan, packing checklist, and money-saving tips for young travelers who want more stamps and fewer spreadsheet tabs.</p>
+          <div class="trust-row" aria-label="TripGenie highlights">
+            <div class="trust-stat">
+              <strong>3 min</strong>
+              <span>from idea to first route</span>
+            </div>
+            <div class="trust-stat">
+              <strong>Budget</strong>
+              <span>food, transit, and activity tips</span>
+            </div>
+            <div class="trust-stat">
+              <strong>Flexible</strong>
+              <span>weekends, long weekends, or a full week</span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="trip-card" id="planner" aria-label="Destination search">
+          <div class="trip-photo">
+            <div class="trip-photo-label">Beach mornings, city nights, hostel-friendly plans.</div>
+          </div>
+          <div class="search-panel">
+            <form id="itinerary-form">
+              <div class="field">
+                <label for="destination">Where do you want to go?</label>
+                <input id="destination" name="destination" type="text" autocomplete="off" placeholder="Lisbon, Bali, Mexico City..." required>
+              </div>
+
+              <div class="field">
+                <label>Trip length</label>
+                <div class="length-options" role="radiogroup" aria-label="Trip length">
+                  <label>
+                    <input type="radio" name="tripLength" value="3 days" checked>
+                    <span>3 days</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="tripLength" value="5 days">
+                    <span>5 days</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="tripLength" value="1 week">
+                    <span>1 week</span>
+                  </label>
+                </div>
+              </div>
+
+              <button id="submit-button" type="submit">Generate my trip</button>
+            </form>
+            <p id="status" class="status" role="status" aria-live="polite"></p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="results-section" id="results" aria-label="Trip planning results">
+        <div class="section-header">
+          <h2>Your TripGenie plan</h2>
+          <p>Search any destination to replace the starter plan with a custom itinerary, budget guidance, and packing ideas built around your selected trip length.</p>
+        </div>
+
+        <div class="results-grid">
+          <article id="result" class="result-card">
+            <span class="badge">Sample itinerary</span>
+            <h1>Lisbon on a student-friendly budget</h1>
+            <h2>Day 1: Alfama, viewpoints, and cheap eats</h2>
+            <p>Start with a tram ride into Alfama, walk between miradouros, and keep lunch simple with bifanas or a market stall meal. Save paid attractions for one or two must-see stops.</p>
+            <h2>Day 2: Belem and riverside wandering</h2>
+            <p>Use public transit to reach Belem early, share pastries with friends, then spend the afternoon along the waterfront before a low-cost dinner in Bairro Alto.</p>
+            <h2>Day 3: Sintra or beach day</h2>
+            <p>Pick one day trip instead of trying to do everything. Sintra works for castles and views; Cascais works when you want a lower-effort beach reset.</p>
+          </article>
+
+          <aside class="side-stack">
+            <section class="side-card" id="packing">
+              <span class="badge">Packing list</span>
+              <h3>Carry-on essentials</h3>
+              <ul id="packing-list">
+                <li>Comfortable walking shoes and one nicer evening layer</li>
+                <li>Portable charger, universal adapter, and offline maps</li>
+                <li>Reusable bottle, compact rain shell, and day bag</li>
+                <li>Copies of passport, booking confirmations, and insurance</li>
+              </ul>
+            </section>
+
+            <section class="side-card">
+              <span class="badge">Budget tips</span>
+              <h3>Spend where it matters</h3>
+              <ul id="budget-tips">
+                <li>Book central lodging when it cuts down on rideshares.</li>
+                <li>Use lunch specials for restaurants and keep dinners casual.</li>
+                <li>Group nearby attractions to avoid extra transit costs.</li>
+                <li>Reserve one paid experience, then fill the rest with free walks.</li>
+              </ul>
+            </section>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const form = document.getElementById("itinerary-form");
+    const destinationInput = document.getElementById("destination");
+    const statusEl = document.getElementById("status");
+    const resultEl = document.getElementById("result");
+    const packingListEl = document.getElementById("packing-list");
+    const budgetTipsEl = document.getElementById("budget-tips");
+    const submitButton = document.getElementById("submit-button");
+
+    const defaultPacking = [
+      "Comfortable walking shoes and one nicer evening layer",
+      "Portable charger, universal adapter, and offline maps",
+      "Reusable bottle, compact rain shell, and day bag",
+      "Copies of passport, booking confirmations, and insurance"
+    ];
+
+    const defaultBudgetTips = [
+      "Book central lodging when it cuts down on rideshares.",
+      "Use lunch specials for restaurants and keep dinners casual.",
+      "Group nearby attractions to avoid extra transit costs.",
+      "Reserve one paid experience, then fill the rest with free walks."
+    ];
+
+    function escapeHtml(value) {
+      return value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function markdownToHtml(markdown) {
+      const lines = markdown.split(/\r?\n/);
+      const html = [];
+      let listType = null;
+
+      function closeList() {
+        if (listType) {
+          html.push(`</${listType}>`);
+          listType = null;
+        }
+      }
+
+      for (const rawLine of lines) {
+        const line = rawLine.trim();
+
+        if (!line) {
+          closeList();
+          continue;
+        }
+
+        const heading = line.match(/^(#{1,3})\s+(.+)$/);
+        if (heading) {
+          closeList();
+          html.push(`<h${heading[1].length}>${escapeHtml(heading[2])}</h${heading[1].length}>`);
+          continue;
+        }
+
+        const bullet = line.match(/^[-*]\s+(.+)$/);
+        if (bullet) {
+          if (listType !== "ul") {
+            closeList();
+            html.push("<ul>");
+            listType = "ul";
+          }
+          html.push(`<li>${escapeHtml(bullet[1])}</li>`);
+          continue;
+        }
+
+        const numbered = line.match(/^\d+\.\s+(.+)$/);
+        if (numbered) {
+          if (listType !== "ol") {
+            closeList();
+            html.push("<ol>");
+            listType = "ol";
+          }
+          html.push(`<li>${escapeHtml(numbered[1])}</li>`);
+          continue;
+        }
+
+        closeList();
+        html.push(`<p>${escapeHtml(line)}</p>`);
+      }
+
+      closeList();
+      return html.join("");
+    }
+
+    function renderList(element, items) {
+      element.innerHTML = items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+    }
+
+    function buildPackingList(destination, tripLength) {
+      return [
+        `Carry-on capsule outfits for ${tripLength} in ${destination}`,
+        "Comfortable shoes already broken in before departure",
+        "Portable charger, adapter, and downloaded maps",
+        "Compact toiletry kit, refillable bottle, and day bag"
+      ];
+    }
+
+    function buildBudgetTips(destination, tripLength) {
+      return [
+        `Set one daily splurge for ${destination} and keep the rest flexible.`,
+        `For ${tripLength}, book lodging near transit before chasing the cheapest room.`,
+        "Use grocery breakfasts, lunch specials, and casual dinners to stretch cash.",
+        "Bundle neighborhoods by day so transit costs stay predictable."
+      ];
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const destination = destinationInput.value.trim();
+      const tripLength = new FormData(form).get("tripLength") || "3 days";
+
+      if (!destination) {
+        destinationInput.focus();
+        return;
+      }
+
+      statusEl.textContent = `Building a ${tripLength} TripGenie plan for ${destination}...`;
+      statusEl.classList.remove("error");
+      resultEl.innerHTML = '<div class="placeholder">Generating your itinerary...</div>';
+      renderList(packingListEl, buildPackingList(destination, tripLength));
+      renderList(budgetTipsEl, buildBudgetTips(destination, tripLength));
+      submitButton.disabled = true;
+
+      try {
+        const response = await fetch("/api/itinerary", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ destination, tripLength })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Could not generate an itinerary.");
+        }
+
+        statusEl.textContent = `${tripLength} itinerary ready for ${data.destination}`;
+        resultEl.innerHTML = markdownToHtml(data.itinerary);
+        document.getElementById("results").scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (error) {
+        statusEl.textContent = error.message;
+        statusEl.classList.add("error");
+        resultEl.innerHTML = '<div class="placeholder">Try another destination or check the server logs.</div>';
+        renderList(packingListEl, defaultPacking);
+        renderList(budgetTipsEl, defaultBudgetTips);
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
