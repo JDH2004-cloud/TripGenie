@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import io
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -19,6 +20,19 @@ def configure_text_encoding():
         stream = getattr(sys, stream_name, None)
         if stream and hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8", errors="replace")
+        elif stream and hasattr(stream, "buffer"):
+            setattr(
+                sys,
+                stream_name,
+                io.TextIOWrapper(stream.buffer, encoding="utf-8", errors="replace"),
+            )
+
+
+def safe_print(message):
+    try:
+        print(message)
+    except UnicodeEncodeError:
+        print(str(message).encode("ascii", errors="backslashreplace").decode("ascii"))
 
 
 def build_itinerary(destination, trip_length="3 days"):
@@ -48,9 +62,12 @@ Write the itinerary in clear, traveler-friendly Markdown.
         messages=[{"role": "user", "content": prompt}],
     )
 
-    return "\n".join(
-        block.text for block in message.content if getattr(block, "type", None) == "text"
+    text_blocks = (
+        str(block.text)
+        for block in message.content
+        if getattr(block, "type", None) == "text"
     )
+    return "\n".join(text_blocks)
 
 
 class TravelRequestHandler(BaseHTTPRequestHandler):
@@ -126,14 +143,14 @@ class TravelRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(content)
 
     def log_message(self, format, *args):
-        print("%s - - %s" % (self.address_string(), format % args))
+        safe_print("%s - - %s" % (self.address_string(), format % args))
 
 
 def main():
     configure_text_encoding()
     server = ThreadingHTTPServer((HOST, PORT), TravelRequestHandler)
-    print(f"Travel app running at http://{HOST}:{PORT}")
-    print("Press Ctrl+C to stop the server.")
+    safe_print(f"Travel app running at http://{HOST}:{PORT}")
+    safe_print("Press Ctrl+C to stop the server.")
     server.serve_forever()
 
 
