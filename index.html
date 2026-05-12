@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TripGenie | Budget Travel Itinerary Planner</title>
+  <title>JetBuddie | Budget Travel Itinerary Planner</title>
   <style>
     :root {
       color-scheme: light;
@@ -509,14 +509,14 @@
   <div class="site-shell">
     <nav class="nav" aria-label="Primary navigation">
       <div class="nav-inner">
-        <a class="brand" href="#top" aria-label="TripGenie home">
+        <a class="brand" href="#top" aria-label="JetBuddie home">
           <span class="logo" aria-hidden="true">
             <svg viewBox="0 0 24 24">
               <path d="M3 11.5 21 4l-7.5 18-2.6-7.8L3 11.5Z"></path>
               <path d="m11 14 4-4"></path>
             </svg>
           </span>
-          <span>TripGenie</span>
+          <span>JetBuddie</span>
         </a>
         <div class="nav-links">
           <a href="#planner">Planner</a>
@@ -528,12 +528,12 @@
     </nav>
 
     <main id="top">
-      <section class="hero" aria-label="TripGenie budget travel planner">
+      <section class="hero" aria-label="JetBuddie budget travel planner">
         <div class="hero-copy">
           <p class="eyebrow">Smart trips for real budgets</p>
           <h1>Go farther without going broke.</h1>
-          <p>TripGenie turns one destination into a practical route, daily plan, packing checklist, and money-saving tips for young travelers who want more stamps and fewer spreadsheet tabs.</p>
-          <div class="trust-row" aria-label="TripGenie highlights">
+          <p>JetBuddie turns one destination into a practical route, daily plan, packing checklist, and money-saving tips for young travelers who want more stamps and fewer spreadsheet tabs.</p>
+          <div class="trust-row" aria-label="JetBuddie highlights">
             <div class="trust-stat">
               <strong>3 min</strong>
               <span>from idea to first route</span>
@@ -587,7 +587,7 @@
 
       <section class="results-section" id="results" aria-label="Trip planning results">
         <div class="section-header">
-          <h2>Your TripGenie plan</h2>
+          <h2>Your JetBuddie plan</h2>
           <p>Search any destination to replace the starter plan with a custom itinerary, budget guidance, and packing ideas built around your selected trip length.</p>
         </div>
 
@@ -753,7 +753,7 @@
         return;
       }
 
-      statusEl.textContent = `Building a ${tripLength} TripGenie plan for ${destination}...`;
+      statusEl.textContent = `Building a ${tripLength} JetBuddie plan for ${destination}...`;
       statusEl.classList.remove("error");
       resultEl.innerHTML = '<div class="placeholder">Generating your itinerary...</div>';
       renderList(packingListEl, buildPackingList(destination, tripLength));
