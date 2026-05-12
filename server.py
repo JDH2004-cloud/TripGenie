@@ -2,6 +2,7 @@ import json
 import os
 import sys
 import io
+import traceback
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -111,10 +112,8 @@ class TravelRequestHandler(BaseHTTPRequestHandler):
 
         try:
             itinerary = build_itinerary(destination, trip_length)
-        except anthropic.APIError as exc:
-            self.send_json({"error": f"Anthropic API error: {exc}"}, HTTPStatus.BAD_GATEWAY)
-            return
         except Exception as exc:
+            traceback.print_exc()
             self.send_json({"error": f"Could not generate an itinerary: {exc}"}, HTTPStatus.INTERNAL_SERVER_ERROR)
             return
 
