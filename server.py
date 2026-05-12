@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -11,6 +12,13 @@ HOST = "0.0.0.0"
 PORT = int(os.getenv("PORT", "8000"))
 MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6")
 BASE_DIR = Path(__file__).resolve().parent
+
+
+def configure_text_encoding():
+    for stream_name in ("stdin", "stdout", "stderr"):
+        stream = getattr(sys, stream_name, None)
+        if stream and hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
 
 
 def build_itinerary(destination, trip_length="3 days"):
@@ -67,7 +75,11 @@ class TravelRequestHandler(BaseHTTPRequestHandler):
 
         try:
             content_length = int(self.headers.get("Content-Length", "0"))
-            payload = json.loads(self.rfile.read(content_length) or b"{}")
+            body = self.rfile.read(content_length) or b"{}"
+            payload = json.loads(body.decode("utf-8"))
+        except UnicodeDecodeError:
+            self.send_json({"error": "Request body must be UTF-8 encoded."}, HTTPStatus.BAD_REQUEST)
+            return
         except (ValueError, json.JSONDecodeError):
             self.send_json({"error": "Request body must be valid JSON."}, HTTPStatus.BAD_REQUEST)
             return
@@ -106,7 +118,7 @@ class TravelRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(content)
 
     def send_json(self, payload, status=HTTPStatus.OK):
-        content = json.dumps(payload).encode("utf-8")
+        content = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(content)))
@@ -118,6 +130,7 @@ class TravelRequestHandler(BaseHTTPRequestHandler):
 
 
 def main():
+    configure_text_encoding()
     server = ThreadingHTTPServer((HOST, PORT), TravelRequestHandler)
     print(f"Travel app running at http://{HOST}:{PORT}")
     print("Press Ctrl+C to stop the server.")
