@@ -40,17 +40,14 @@ def safe_print(message):
 
 def build_prompt(destination, trip_length="3 days"):
     return f"""
-Create a detailed {trip_length} travel itinerary for {destination}.
+Create a short, scannable {trip_length} travel itinerary for {destination}.
 
 Include:
-- A practical {trip_length} schedule with morning, afternoon, and evening plans
-- Specific kinds of neighborhoods, landmarks, food experiences, and cultural stops
-- Pacing notes so the trip does not feel rushed
-- Local transportation suggestions
-- A short packing list section
-- A short budget tips section for young budget travelers
+- 5-7 bullet points of the top things to do
+- 2-3 hotel or accommodation recommendations with price ranges
+- A short packing list of 5-6 essential items
 
-Write the itinerary in clear, traveler-friendly Markdown.
+Keep it punchy and easy to scan. Use bullets only, no long paragraphs, and stay under 300 words total.
 """.strip()
 
 
