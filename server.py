@@ -2,10 +2,12 @@ import json
 import os
 import sys
 import io
+import re
 import traceback
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 import anthropic
 
@@ -36,10 +38,8 @@ def safe_print(message):
         print(str(message).encode("ascii", errors="backslashreplace").decode("ascii"))
 
 
-def build_itinerary(destination, trip_length="3 days"):
-    client = anthropic.Anthropic()
-
-    prompt = f"""
+def build_prompt(destination, trip_length="3 days"):
+    return f"""
 Create a detailed {trip_length} travel itinerary for {destination}.
 
 Include:
@@ -53,6 +53,10 @@ Include:
 Write the itinerary in clear, traveler-friendly Markdown.
 """.strip()
 
+
+def build_itinerary(destination, trip_length="3 days"):
+    client = anthropic.Anthropic()
+
     message = client.messages.create(
         model=MODEL,
         max_tokens=2500,
@@ -60,7 +64,7 @@ Write the itinerary in clear, traveler-friendly Markdown.
             "You are an expert travel planner. Build specific, useful itineraries "
             "with realistic pacing and practical advice."
         ),
-        messages=[{"role": "user", "content": prompt}],
+        messages=[{"role": "user", "content": build_prompt(destination, trip_length)}],
     )
 
     text_blocks = (
@@ -71,13 +75,90 @@ Write the itinerary in clear, traveler-friendly Markdown.
     return "\n".join(text_blocks)
 
 
+def stream_itinerary_words(destination, trip_length="3 days"):
+    client = anthropic.Anthropic()
+    pending = ""
+
+    with client.messages.stream(
+        model=MODEL,
+        max_tokens=2500,
+        system=(
+            "You are an expert travel planner. Build specific, useful itineraries "
+            "with realistic pacing and practical advice."
+        ),
+        messages=[{"role": "user", "content": build_prompt(destination, trip_length)}],
+    ) as stream:
+        for text in stream.text_stream:
+            pending += text
+            last_whitespace = max(pending.rfind(char) for char in (" ", "\n", "\r", "\t"))
+
+            if last_whitespace == -1:
+                continue
+
+            ready = pending[: last_whitespace + 1]
+            pending = pending[last_whitespace + 1 :]
+
+            for word in re.findall(r"\s+|\S+\s*", ready):
+                yield word
+
+    if pending:
+        yield pending
+
+
 class TravelRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path in ("/", "/index.html"):
+        parsed_url = urlparse(self.path)
+
+        if parsed_url.path in ("/", "/index.html"):
             self.serve_index()
             return
 
+        if parsed_url.path == "/api/itinerary/stream":
+            self.stream_itinerary(parsed_url.query)
+            return
+
         self.send_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
+
+    def stream_itinerary(self, query_string):
+        if not os.getenv("ANTHROPIC_API_KEY"):
+            self.send_sse_error(
+                "Set the ANTHROPIC_API_KEY environment variable first.",
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+            )
+            return
+
+        query = parse_qs(query_string)
+        destination = str((query.get("destination") or [""])[0]).strip()
+        trip_length = str((query.get("tripLength") or ["3 days"])[0]).strip()
+
+        if not destination:
+            self.send_sse_error("Destination is required.", HTTPStatus.BAD_REQUEST)
+            return
+        if trip_length not in {"3 days", "5 days", "1 week"}:
+            trip_length = "3 days"
+
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+        self.send_header("Cache-Control", "no-cache")
+        self.send_header("Connection", "keep-alive")
+        self.end_headers()
+
+        try:
+            self.write_sse(
+                "start",
+                {"destination": destination, "tripLength": trip_length},
+            )
+            for word in stream_itinerary_words(destination, trip_length):
+                self.write_sse("token", {"text": word})
+            self.write_sse("done", {"destination": destination, "tripLength": trip_length})
+        except (BrokenPipeError, ConnectionResetError):
+            return
+        except Exception as exc:
+            traceback.print_exc()
+            try:
+                self.write_sse("error", {"error": f"Could not generate an itinerary: {exc}"})
+            except (BrokenPipeError, ConnectionResetError):
+                return
 
     def do_POST(self):
         if self.path != "/api/itinerary":
@@ -140,6 +221,19 @@ class TravelRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(content)))
         self.end_headers()
         self.wfile.write(content)
+
+    def send_sse_error(self, message, status=HTTPStatus.OK):
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+        self.send_header("Cache-Control", "no-cache")
+        self.end_headers()
+        self.write_sse("error", {"error": message})
+
+    def write_sse(self, event, payload):
+        self.wfile.write(f"event: {event}\n".encode("utf-8"))
+        data = json.dumps(payload, ensure_ascii=False)
+        self.wfile.write(f"data: {data}\n\n".encode("utf-8"))
+        self.wfile.flush()
 
     def log_message(self, format, *args):
         safe_print("%s - - %s" % (self.address_string(), format % args))

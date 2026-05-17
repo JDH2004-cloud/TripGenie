@@ -639,6 +639,7 @@
     const packingListEl = document.getElementById("packing-list");
     const budgetTipsEl = document.getElementById("budget-tips");
     const submitButton = document.getElementById("submit-button");
+    let itineraryStream = null;
 
     const defaultPacking = [
       "Comfortable walking shoes and one nicer evening layer",
@@ -742,8 +743,21 @@
       ];
     }
 
-    form.addEventListener("submit", async (event) => {
+    function setLoading(isLoading) {
+      submitButton.disabled = isLoading;
+      submitButton.textContent = isLoading ? "Generating..." : "Generate my trip";
+    }
+
+    function closeItineraryStream() {
+      if (itineraryStream) {
+        itineraryStream.close();
+        itineraryStream = null;
+      }
+    }
+
+    form.addEventListener("submit", (event) => {
       event.preventDefault();
+      closeItineraryStream();
 
       const destination = destinationInput.value.trim();
       const tripLength = new FormData(form).get("tripLength") || "3 days";
@@ -758,35 +772,46 @@
       resultEl.innerHTML = '<div class="placeholder">Generating your itinerary...</div>';
       renderList(packingListEl, buildPackingList(destination, tripLength));
       renderList(budgetTipsEl, buildBudgetTips(destination, tripLength));
-      submitButton.disabled = true;
+      setLoading(true);
+      document.getElementById("results").scrollIntoView({ behavior: "smooth", block: "start" });
 
-      try {
-        const response = await fetch("/api/itinerary", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ destination, tripLength })
-        });
+      let streamedMarkdown = "";
+      const params = new URLSearchParams({ destination, tripLength });
+      itineraryStream = new EventSource(`/api/itinerary/stream?${params.toString()}`);
 
-        const data = await response.json();
+      itineraryStream.addEventListener("start", (message) => {
+        const data = JSON.parse(message.data);
+        statusEl.textContent = `Streaming a ${data.tripLength} itinerary for ${data.destination}...`;
+        resultEl.innerHTML = "";
+      });
 
-        if (!response.ok) {
-          throw new Error(data.error || "Could not generate an itinerary.");
-        }
+      itineraryStream.addEventListener("token", (message) => {
+        const data = JSON.parse(message.data);
+        streamedMarkdown += data.text;
+        resultEl.innerHTML = markdownToHtml(streamedMarkdown);
+        resultEl.scrollTop = resultEl.scrollHeight;
+      });
 
-        statusEl.textContent = `${tripLength} itinerary ready for ${data.destination}`;
-        resultEl.innerHTML = markdownToHtml(data.itinerary);
-        document.getElementById("results").scrollIntoView({ behavior: "smooth", block: "start" });
-      } catch (error) {
-        statusEl.textContent = error.message;
+      itineraryStream.addEventListener("done", (message) => {
+        const data = JSON.parse(message.data);
+        statusEl.textContent = `${data.tripLength} itinerary ready for ${data.destination}`;
+        setLoading(false);
+        closeItineraryStream();
+      });
+
+      itineraryStream.addEventListener("error", (message) => {
+        const error = message.data
+          ? JSON.parse(message.data).error
+          : "The itinerary stream was interrupted.";
+
+        statusEl.textContent = error;
         statusEl.classList.add("error");
         resultEl.innerHTML = '<div class="placeholder">Try another destination or check the server logs.</div>';
         renderList(packingListEl, defaultPacking);
         renderList(budgetTipsEl, defaultBudgetTips);
-      } finally {
-        submitButton.disabled = false;
-      }
+        setLoading(false);
+        closeItineraryStream();
+      });
     });
   </script>
 </body>
