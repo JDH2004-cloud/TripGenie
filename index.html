@@ -3,1257 +3,986 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JetBuddie | Budget Travel Itinerary Planner</title>
+  <title>JetBuddie | Budget Travel Planner</title>
   <style>
     :root {
-      color-scheme: dark;
-      --navy-950: #000000;
-      --navy-900: #020713;
-      --navy-850: #04111f;
-      --navy-800: #082238;
-      --ink: #f7fbff;
-      --muted: #9eb9c7;
-      --muted-strong: #d8f7ff;
-      --panel: rgba(255, 255, 255, 0.08);
-      --panel-dark: rgba(2, 14, 26, 0.56);
-      --line: rgba(255, 255, 255, 0.18);
-      --line-dark: rgba(255, 255, 255, 0.16);
-      --coral: #00d4ff;
-      --coral-strong: #00a7ff;
-      --orange: #45fff4;
-      --gold: #00d4ff;
-      --cyan: #45fff4;
-      --text-dark: #eefbff;
-      --text-muted: #99b7c8;
-      --shadow: 0 28px 80px rgba(0, 212, 255, 0.18);
-      --shadow-soft: 0 18px 45px rgba(0, 212, 255, 0.11);
-      --radius: 8px;
+      --blue: #2563EB;
+      --blue-dark: #1D4ED8;
+      --blue-light: #EFF6FF;
+      --orange: #F97316;
+      --text: #0F172A;
+      --text-muted: #64748B;
+      --border: #E2E8F0;
+      --bg: #FFFFFF;
+      --bg-alt: #F8FAFC;
+      --radius: 12px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+      --shadow: 0 4px 24px rgba(0,0,0,0.08), 0 20px 60px rgba(0,0,0,0.05);
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
 
     body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--ink);
-      background:
-        radial-gradient(circle at 18% 16%, rgba(0, 212, 255, 0.18), transparent 27rem),
-        radial-gradient(circle at 84% 8%, rgba(69, 255, 244, 0.16), transparent 30rem),
-        radial-gradient(circle at 72% 82%, rgba(0, 111, 255, 0.13), transparent 34rem),
-        #000000;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
     }
 
-    body::selection {
-      color: #ffffff;
-      background: var(--coral);
-    }
+    a { color: inherit; text-decoration: none; }
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .site-shell {
-      position: relative;
-      min-height: 100vh;
-      overflow: hidden;
-      background:
-        linear-gradient(rgba(0, 212, 255, 0.055) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 212, 255, 0.055) 1px, transparent 1px),
-        linear-gradient(180deg, rgba(0, 0, 0, 0.34), rgba(0, 0, 0, 0.92));
-      background-size: 48px 48px, 48px 48px, auto;
-    }
-
-    .site-shell::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-      background:
-        radial-gradient(circle at 24% 18%, rgba(0, 212, 255, 0.11), transparent 24rem),
-        radial-gradient(circle at 86% 32%, rgba(69, 255, 244, 0.10), transparent 28rem),
-        linear-gradient(180deg, rgba(0, 212, 255, 0.05), transparent 42%);
-      mix-blend-mode: screen;
-    }
-
+    /* NAV */
     .nav {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 20;
-      border-bottom: 1px solid rgba(0, 212, 255, 0.2);
-      background: rgba(0, 0, 0, 0.62);
+      top: 0; left: 0; right: 0;
+      z-index: 50;
+      background: rgba(255,255,255,0.92);
       backdrop-filter: blur(20px);
-      box-shadow: 0 12px 48px rgba(0, 212, 255, 0.09);
+      border-bottom: 1px solid var(--border);
     }
 
     .nav-inner {
-      width: min(1180px, calc(100% - 32px));
-      min-height: 74px;
+      width: min(1200px, calc(100% - 40px));
       margin: 0 auto;
+      height: 68px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 24px;
+      gap: 20px;
     }
 
     .brand {
-      display: inline-flex;
+      display: flex;
       align-items: center;
-      gap: 11px;
-      color: #ffffff;
-      font-size: 1.18rem;
-      font-weight: 950;
+      gap: 10px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text);
     }
 
-    .logo {
-      width: 42px;
-      height: 42px;
-      border: 1px solid rgba(255, 255, 255, 0.24);
-      border-radius: var(--radius);
+    .brand-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--blue), #7C3AED);
+      border-radius: 9px;
       display: grid;
       place-items: center;
-      color: #ffffff;
-      background: linear-gradient(135deg, var(--coral), var(--orange));
-      box-shadow: 0 0 26px rgba(0, 212, 255, 0.38);
+      flex-shrink: 0;
     }
 
-    .logo svg {
-      width: 22px;
-      height: 22px;
-      stroke: currentColor;
-      stroke-width: 2.4;
-      fill: none;
-      stroke-linecap: round;
-      stroke-linejoin: round;
+    .brand-icon svg {
+      width: 17px; height: 17px;
+      stroke: white; stroke-width: 2.5;
+      fill: none; stroke-linecap: round; stroke-linejoin: round;
     }
 
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 22px;
-      color: rgba(247, 251, 255, 0.74);
-      font-size: 0.93rem;
-      font-weight: 800;
+      gap: 26px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
     }
 
-    .nav-links a {
-      transition: color 180ms ease, transform 180ms ease;
-    }
-
-    .nav-links a:hover {
-      color: #ffffff;
-      transform: translateY(-1px);
-    }
+    .nav-links a { transition: color 150ms; }
+    .nav-links a:hover { color: var(--text); }
 
     .nav-cta {
-      min-height: 42px;
+      height: 36px;
+      padding: 0 16px;
+      background: var(--blue);
+      color: white !important;
+      border-radius: 8px;
+      font-size: 0.86rem;
+      font-weight: 700;
       display: inline-flex;
       align-items: center;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: var(--radius);
-      padding: 0 16px;
-      color: #ffffff;
-      background: linear-gradient(135deg, var(--coral-strong), var(--orange));
-      box-shadow: 0 0 30px rgba(0, 212, 255, 0.28);
+      transition: background 150ms, transform 150ms;
     }
 
-    main {
-      position: relative;
-      z-index: 1;
-    }
+    .nav-cta:hover { background: var(--blue-dark) !important; transform: translateY(-1px); }
 
+    /* HERO */
     .hero {
-      position: relative;
       min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 50%, rgba(37,99,235,0.05) 0%, transparent 50%),
+        radial-gradient(circle at 85% 20%, rgba(249,115,22,0.04) 0%, transparent 45%),
+        #FFFFFF;
       display: grid;
       align-items: center;
-      padding: 118px 0 56px;
-      isolation: isolate;
-    }
-
-    .hero::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: -2;
-      background:
-        radial-gradient(circle at 20% 22%, rgba(0, 212, 255, 0.34), transparent 30rem),
-        radial-gradient(circle at 78% 32%, rgba(69, 255, 244, 0.24), transparent 28rem),
-        linear-gradient(120deg, #000000 0%, #031225 35%, #001a2d 52%, #000000 100%);
-      background-size: 120% 120%, 120% 120%, 260% 260%;
-      animation: heroShift 18s ease-in-out infinite alternate;
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      inset: auto 0 -1px;
-      z-index: -1;
-      height: 170px;
-      background: linear-gradient(180deg, rgba(0, 0, 0, 0), #000000 86%);
-    }
-
-    @keyframes heroShift {
-      0% {
-        background-position: 0% 45%, 100% 20%, 0% 50%;
-      }
-
-      100% {
-        background-position: 100% 55%, 0% 80%, 100% 50%;
-      }
+      padding: 128px 0 80px;
     }
 
     .hero-inner {
-      width: min(1180px, calc(100% - 32px));
+      width: min(820px, calc(100% - 40px));
       margin: 0 auto;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(360px, 430px);
-      gap: 42px;
-      align-items: center;
-    }
-
-    .hero-copy {
-      max-width: 720px;
+      text-align: center;
     }
 
     .eyebrow {
-      width: fit-content;
-      margin: 0 0 18px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      height: 32px;
+      padding: 0 14px;
+      background: var(--blue-light);
+      color: var(--blue);
       border-radius: 999px;
-      padding: 8px 13px;
-      color: #fff4e6;
-      background: rgba(0, 212, 255, 0.12);
-      box-shadow: inset 0 0 0 1px rgba(69, 255, 244, 0.18), 0 0 28px rgba(0, 212, 255, 0.12);
-      font-size: 0.8rem;
-      font-weight: 900;
-      letter-spacing: 0.04em;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
+      margin-bottom: 26px;
     }
 
     h1 {
-      margin: 0;
-      max-width: 11ch;
-      color: #ffffff;
-      font-size: clamp(3.2rem, 7vw, 6.7rem);
-      line-height: 0.92;
-      letter-spacing: 0;
-      text-wrap: balance;
+      font-size: clamp(2.8rem, 7vw, 5.2rem);
+      font-weight: 900;
+      line-height: 1.0;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 22px;
     }
 
     .accent {
-      display: inline;
-      color: var(--gold);
-      text-shadow: 0 0 32px rgba(0, 212, 255, 0.58);
+      background: linear-gradient(135deg, var(--blue), var(--orange));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
-    .hero-copy > p {
-      max-width: 43rem;
-      margin: 24px 0 0;
-      color: rgba(247, 251, 255, 0.78);
+    .hero-sub {
       font-size: 1.15rem;
-      line-height: 1.68;
+      color: var(--text-muted);
+      line-height: 1.65;
+      max-width: 500px;
+      margin: 0 auto 40px;
     }
 
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 30px;
-    }
+    /* SEARCH */
+    .search-wrap { position: relative; }
 
-    .hero-button,
-    .hero-link {
-      min-height: 48px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--radius);
-      padding: 0 18px;
-      font-weight: 900;
-      transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
-    }
-
-    .hero-button {
-      color: #ffffff;
-      background: linear-gradient(135deg, var(--coral-strong), var(--orange));
-      box-shadow: 0 0 36px rgba(0, 212, 255, 0.35);
-    }
-
-    .hero-link {
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(12px);
-    }
-
-    .hero-button:hover,
-    .hero-link:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 22px 48px rgba(0, 0, 0, 0.22);
-    }
-
-    .trust-row {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-      max-width: 650px;
-      margin-top: 36px;
-    }
-
-    .trust-stat {
-      min-height: 108px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: var(--radius);
-      padding: 16px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.045));
-      backdrop-filter: blur(18px);
-      box-shadow: 0 18px 42px rgba(0, 212, 255, 0.10);
-      transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
-    }
-
-    .trust-stat:hover {
-      border-color: rgba(0, 212, 255, 0.46);
-      background: rgba(0, 212, 255, 0.12);
-      transform: translateY(-3px);
-    }
-
-    .trust-stat strong {
-      display: block;
-      color: #ffffff;
-      font-size: 1.3rem;
-      line-height: 1.1;
-    }
-
-    .trust-stat span {
-      display: block;
-      margin-top: 8px;
-      color: rgba(247, 251, 255, 0.72);
-      font-size: 0.88rem;
-      line-height: 1.35;
-    }
-
-    .trip-card {
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.24);
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.055));
-      color: var(--text-dark);
+    #planner {
+      background: white;
+      border-radius: 18px;
+      border: 1.5px solid var(--border);
       box-shadow: var(--shadow);
-      transform: translateY(10px);
-      backdrop-filter: blur(24px);
-    }
-
-    .trip-photo {
-      min-height: 252px;
+      padding: 10px 10px 10px 24px;
       display: flex;
-      align-items: end;
-      padding: 18px;
-      color: #ffffff;
-      background:
-        linear-gradient(180deg, rgba(0, 212, 255, 0.08), rgba(0, 0, 0, 0.78)),
-        radial-gradient(circle at 25% 28%, rgba(0, 212, 255, 0.58), transparent 10rem),
-        radial-gradient(circle at 76% 42%, rgba(69, 255, 244, 0.38), transparent 11rem),
-        linear-gradient(135deg, #020713, #001d35 45%, #000000);
-    }
-
-    .trip-photo-label {
-      width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: var(--radius);
-      padding: 12px 13px;
-      background: rgba(0, 0, 0, 0.42);
-      backdrop-filter: blur(12px);
-      font-weight: 850;
-      line-height: 1.35;
-    }
-
-    .search-panel {
-      padding: 22px;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.045)),
-        radial-gradient(circle at 100% 0%, rgba(0, 212, 255, 0.16), transparent 15rem);
-    }
-
-    form {
-      display: grid;
-      gap: 18px;
-    }
-
-    label {
-      display: block;
-      margin: 0 0 8px;
-      color: var(--text-dark);
-      font-size: 0.92rem;
-      font-weight: 900;
-    }
-
-    input {
-      width: 100%;
-      min-height: 54px;
-      border: 1px solid rgba(255, 255, 255, 0.17);
-      border-radius: var(--radius);
-      padding: 0 15px;
-      color: var(--ink);
-      background: rgba(0, 0, 0, 0.34);
-      font: inherit;
-      outline: none;
-      transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
-    }
-
-    input::placeholder {
-      color: #8aafbd;
-    }
-
-    input:focus {
-      border-color: var(--coral);
-      box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.16), 0 0 28px rgba(0, 212, 255, 0.18);
-    }
-
-    .length-options {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-items: center;
       gap: 10px;
+      max-width: 720px;
+      margin: 0 auto 14px;
     }
 
-    .length-options label {
-      margin: 0;
+    .search-input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      outline: none;
+      font: inherit;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+      background: transparent;
     }
 
-    .length-options input {
+    .search-input::placeholder { color: #9CA3AF; font-weight: 400; }
+
+    .search-divider {
+      width: 1px; height: 26px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    .length-picker {
+      display: flex;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .length-picker input {
       position: absolute;
       opacity: 0;
       pointer-events: none;
     }
 
-    .length-options span {
-      min-height: 48px;
-      display: grid;
-      place-items: center;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      border-radius: var(--radius);
+    .length-picker label { display: block; }
+
+    .length-picker span {
+      display: inline-flex;
+      align-items: center;
+      height: 34px;
+      padding: 0 13px;
+      border-radius: 8px;
+      font-size: 0.86rem;
+      font-weight: 600;
       color: var(--text-muted);
-      background: rgba(255, 255, 255, 0.055);
-      font-size: 0.94rem;
-      font-weight: 900;
       cursor: pointer;
-      transition: border-color 160ms ease, background 160ms ease, color 160ms ease, transform 160ms ease;
+      white-space: nowrap;
+      transition: background 150ms, color 150ms;
     }
 
-    .length-options span:hover {
-      transform: translateY(-1px);
-      border-color: rgba(0, 212, 255, 0.42);
-    }
+    .length-picker span:hover { background: var(--bg-alt); color: var(--text); }
+    .length-picker input:checked + span { background: var(--blue-light); color: var(--blue); }
 
-    .length-options input:checked + span {
-      border-color: rgba(0, 212, 255, 0.68);
-      color: #eafcff;
-      background: linear-gradient(135deg, rgba(0, 212, 255, 0.22), rgba(69, 255, 244, 0.16));
-      box-shadow: 0 0 26px rgba(0, 212, 255, 0.16);
-    }
-
-    button {
-      min-height: 54px;
-      border: 0;
-      border-radius: var(--radius);
-      padding: 0 18px;
-      color: #ffffff;
-      background: linear-gradient(135deg, var(--coral-strong), var(--orange));
+    .search-btn {
+      height: 50px;
+      min-width: 148px;
+      background: linear-gradient(135deg, var(--blue), #4F46E5);
+      color: white;
+      border: none;
+      border-radius: 12px;
       font: inherit;
-      font-weight: 950;
+      font-size: 0.93rem;
+      font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 0 34px rgba(0, 212, 255, 0.30);
-      transition: transform 160ms ease, filter 160ms ease, box-shadow 160ms ease;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      filter: saturate(1.08);
-      box-shadow: 0 0 42px rgba(0, 212, 255, 0.38);
-    }
-
-    button:disabled {
-      cursor: wait;
-      opacity: 0.72;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .status {
-      min-height: 22px;
-      margin: 14px 0 0;
-      color: var(--text-muted);
-      font-size: 0.94rem;
-      line-height: 1.45;
-    }
-
-    .status.error {
-      color: #ff6b8a;
-      font-weight: 850;
-    }
-
-    .results-section {
-      position: relative;
-      width: min(1180px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 36px 0 72px;
-      color: var(--text-dark);
-    }
-
-    .results-section::before {
-      content: "";
-      position: absolute;
-      inset: 0 auto auto 50%;
-      width: 100vw;
-      height: 100%;
-      transform: translateX(-50%);
-      z-index: -1;
-      background:
-        radial-gradient(circle at 8% 0%, rgba(0, 212, 255, 0.14), transparent 22rem),
-        radial-gradient(circle at 92% 18%, rgba(69, 255, 244, 0.12), transparent 26rem),
-        #000000;
-    }
-
-    .section-header {
       display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 24px;
-      margin-bottom: 20px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-shrink: 0;
+      transition: opacity 160ms, transform 160ms;
     }
 
-    .section-header h2 {
-      margin: 0;
-      color: var(--ink);
-      font-size: clamp(1.9rem, 4vw, 3rem);
-      line-height: 1.05;
-      letter-spacing: 0;
-      text-shadow: 0 0 28px rgba(0, 212, 255, 0.22);
+    .search-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .search-btn:disabled { opacity: 0.55; cursor: wait; transform: none; }
+
+    .search-btn svg {
+      width: 16px; height: 16px;
+      stroke: currentColor; stroke-width: 2.5;
+      fill: none; stroke-linecap: round; stroke-linejoin: round;
     }
 
-    .section-header p {
-      max-width: 35rem;
-      margin: 0;
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 0.8s linear infinite; }
+
+    .status-msg {
+      font-size: 0.88rem;
       color: var(--text-muted);
-      line-height: 1.55;
+      text-align: center;
+      min-height: 20px;
+      margin-bottom: 36px;
+    }
+
+    .status-msg.error { color: #EF4444; }
+
+    .trust-pills {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 13px;
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .trust-pill svg {
+      width: 13px; height: 13px;
+      stroke: #22C55E; stroke-width: 2.5;
+      fill: none; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* GALLERY */
+    .gallery-section {
+      background: var(--bg-alt);
+      padding: 80px 0;
+    }
+
+    .section-inner {
+      width: min(1200px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .section-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-size: clamp(1.7rem, 3.5vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 32px;
+    }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: 210px;
+      gap: 12px;
+    }
+
+    .photo-item {
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      background: #E5E7EB;
+    }
+
+    .photo-item.tall { grid-row: span 2; }
+
+    .photo-item img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 500ms ease;
+    }
+
+    .photo-item:hover img { transform: scale(1.06); }
+
+    .photo-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.52) 0%, rgba(0,0,0,0) 50%);
+      transition: background 300ms;
+    }
+
+    .photo-item:hover .photo-overlay {
+      background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.08) 60%);
+    }
+
+    .photo-label {
+      position: absolute;
+      bottom: 15px; left: 15px;
+      color: white;
+      font-size: 1rem;
+      font-weight: 700;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.45);
+    }
+
+    .photo-cta {
+      position: absolute;
+      bottom: 15px; right: 15px;
+      height: 30px; padding: 0 11px;
+      background: white;
+      color: var(--text);
+      border-radius: 7px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      opacity: 0;
+      transform: translateY(5px);
+      transition: opacity 220ms, transform 220ms;
+    }
+
+    .photo-item:hover .photo-cta { opacity: 1; transform: translateY(0); }
+
+    .photo-item:focus-visible {
+      outline: 3px solid var(--blue);
+      outline-offset: 3px;
+    }
+
+    /* RESULTS */
+    .results-section {
+      padding: 72px 0 80px;
+      background: white;
     }
 
     .results-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+      grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.55fr);
       gap: 18px;
       align-items: start;
     }
 
-    .result-card,
-    .side-card {
-      border: 1px solid var(--line-dark);
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.045));
-      box-shadow: var(--shadow-soft);
-      backdrop-filter: blur(22px);
-    }
-
     .result-card {
-      min-height: 560px;
-      max-height: 72vh;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: white;
+      box-shadow: var(--shadow-sm);
+      min-height: 480px;
+      max-height: 70vh;
       overflow: auto;
-      padding: 26px;
-      line-height: 1.65;
+      padding: 28px 30px;
+      line-height: 1.7;
+      font-size: 0.96rem;
+      color: #374151;
     }
 
-    .result-card::-webkit-scrollbar {
-      width: 10px;
-    }
-
-    .result-card::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.06);
-    }
-
-    .result-card::-webkit-scrollbar-thumb {
-      border: 2px solid rgba(0, 0, 0, 0.82);
-      border-radius: 999px;
-      background: rgba(0, 212, 255, 0.78);
-    }
-
-    .side-stack {
-      display: grid;
-      gap: 18px;
-    }
-
-    .side-card {
-      padding: 21px;
-      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
-    }
-
-    .side-card:hover {
-      border-color: rgba(0, 212, 255, 0.36);
-      box-shadow: 0 24px 52px rgba(0, 212, 255, 0.16);
-      transform: translateY(-3px);
-    }
-
-    .side-card h3,
-    .result-card h1,
-    .result-card h2,
-    .result-card h3 {
-      margin: 0 0 10px;
-      color: var(--ink);
-      line-height: 1.22;
-      letter-spacing: 0;
-    }
+    .result-card::-webkit-scrollbar { width: 5px; }
+    .result-card::-webkit-scrollbar-track { background: transparent; }
+    .result-card::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
 
     .result-card h1 {
-      max-width: none;
-      font-size: 1.85rem;
+      font-size: 1.55rem; font-weight: 800; color: var(--text);
+      letter-spacing: -0.02em; margin-bottom: 14px; max-width: none;
     }
-
     .result-card h2 {
-      font-size: 1.35rem;
-      margin-top: 1.25em;
+      font-size: 1.08rem; font-weight: 700; color: var(--text);
+      margin: 1.3em 0 0.4em;
     }
-
-    .result-card h3,
-    .side-card h3 {
-      font-size: 1.08rem;
-    }
-
-    .result-card p,
-    .result-card ul,
-    .result-card ol,
-    .side-card p,
-    .side-card ul {
-      margin: 0 0 1em;
-      color: rgba(238, 251, 255, 0.78);
-    }
-
-    .result-card ul,
-    .result-card ol,
-    .side-card ul {
-      padding-left: 1.2rem;
-    }
-
-    .result-card li,
-    .side-card li {
-      margin-bottom: 0.45rem;
-    }
+    .result-card h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin: 1em 0 0.3em; }
+    .result-card p { margin-bottom: 0.75em; }
+    .result-card ul, .result-card ol { padding-left: 1.25rem; margin-bottom: 0.75em; }
+    .result-card li { margin-bottom: 0.3rem; }
 
     .placeholder {
-      min-height: 410px;
+      min-height: 380px;
       display: grid;
       place-items: center;
-      color: var(--text-muted);
       text-align: center;
     }
 
-    .badge {
+    .placeholder-icon {
+      width: 50px; height: 50px;
+      background: var(--bg-alt);
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 14px;
+    }
+
+    .placeholder-icon svg {
+      width: 22px; height: 22px;
+      stroke: #94A3B8; stroke-width: 2;
+      fill: none; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .placeholder-title {
+      font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 5px;
+    }
+
+    .placeholder-sub {
+      font-size: 0.86rem; color: var(--text-muted);
+    }
+
+    .side-stack { display: grid; gap: 14px; }
+
+    .side-card {
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: white;
+      box-shadow: var(--shadow-sm);
+      padding: 22px;
+    }
+
+    .card-tag {
       display: inline-flex;
       align-items: center;
-      min-height: 30px;
-      border-radius: 999px;
-      padding: 0 10px;
-      color: #eafcff;
-      background: linear-gradient(135deg, rgba(0, 212, 255, 0.20), rgba(69, 255, 244, 0.14));
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      font-size: 0.8rem;
-      font-weight: 950;
-      letter-spacing: 0.02em;
+      height: 24px;
+      padding: 0 9px;
+      background: var(--blue-light);
+      color: var(--blue);
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 11px;
     }
 
-    .side-card .badge {
-      margin-bottom: 12px;
-    }
+    .side-card h3 { font-size: 0.97rem; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+    .side-card ul { padding-left: 1.1rem; }
+    .side-card li { margin-bottom: 0.45rem; color: #374151; font-size: 0.9rem; line-height: 1.5; }
 
-    .gallery-section {
-      position: relative;
-      width: min(1180px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 28px 0 72px;
-      color: var(--ink);
-    }
-
-    .gallery-section h2 {
-      margin: 0 0 22px;
-      font-size: clamp(2rem, 4.6vw, 3.4rem);
-      line-height: 1.04;
-      letter-spacing: 0;
-      text-shadow: 0 0 30px rgba(0, 212, 255, 0.26);
-    }
-
-    .photo-gallery {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      grid-auto-rows: 150px;
-      gap: 16px;
-    }
-
-    .gallery-item {
-      position: relative;
-      overflow: hidden;
-      min-height: 0;
-      margin: 0;
-      border: 1px solid rgba(255, 255, 255, 0.18);
+    /* BOOK BAR */
+    .book-bar {
+      margin-top: 16px;
+      border: 1.5px solid #BFDBFE;
       border-radius: var(--radius);
-      background: rgba(255, 255, 255, 0.07);
-      box-shadow: 0 20px 54px rgba(0, 212, 255, 0.12);
-      backdrop-filter: blur(18px);
-      isolation: isolate;
-      cursor: pointer;
+      padding: 18px 22px;
+      background: var(--blue-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
     }
 
-    .gallery-item::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-      background:
-        linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.42)),
-        linear-gradient(135deg, rgba(0, 212, 255, 0.13), rgba(69, 255, 244, 0));
-      opacity: 0.78;
-      transition: opacity 220ms ease;
+    .book-bar-label {
+      font-size: 0.93rem;
+      font-weight: 700;
+      color: #1E3A8A;
     }
 
-    .gallery-item img {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: cover;
-      transform: scale(1.01);
-      transition: transform 520ms ease, filter 220ms ease;
-    }
+    .book-bar-label span { color: var(--blue); }
 
-    .gallery-item:focus-visible {
-      outline: 3px solid rgba(0, 212, 255, 0.72);
-      outline-offset: 3px;
-    }
+    .book-bar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
-    .gallery-item:hover,
-    .gallery-item:focus-visible {
-      border-color: rgba(0, 212, 255, 0.46);
-      box-shadow: 0 26px 64px rgba(0, 212, 255, 0.20);
-    }
-
-    .gallery-item:hover::after,
-    .gallery-item:focus-visible::after {
-      opacity: 0.52;
-    }
-
-    .gallery-item:hover img,
-    .gallery-item:focus-visible img {
-      transform: scale(1.08);
-      filter: saturate(1.12) contrast(1.04);
-    }
-
-    .gallery-label {
-      position: absolute;
-      left: 14px;
-      right: 14px;
-      bottom: 14px;
-      z-index: 2;
-      width: fit-content;
-      max-width: calc(100% - 28px);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: 999px;
-      padding: 8px 12px;
-      color: #ffffff;
-      background: rgba(0, 0, 0, 0.48);
-      backdrop-filter: blur(14px);
-      box-shadow: 0 0 24px rgba(0, 212, 255, 0.16);
+    .book-btn {
+      height: 40px;
+      padding: 0 16px;
+      border-radius: 9px;
       font-size: 0.86rem;
-      font-weight: 900;
-      line-height: 1.15;
-      text-shadow: 0 0 14px rgba(0, 0, 0, 0.65);
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 150ms, box-shadow 150ms;
     }
 
-    .gallery-item.tall {
-      grid-row: span 2;
+    .book-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+    .book-btn-hotels { background: var(--blue); color: white; }
+    .book-btn-flights { background: white; color: var(--text); border: 1.5px solid var(--border); }
+
+    /* FOOTER */
+    .footer {
+      background: var(--text);
+      padding: 36px 0;
+      text-align: center;
     }
 
-    .gallery-item.wide {
-      grid-column: span 2;
+    .footer-inner {
+      width: min(1200px, calc(100% - 40px));
+      margin: 0 auto;
     }
 
+    .footer-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: white;
+      font-weight: 800;
+      font-size: 0.97rem;
+      margin-bottom: 8px;
+    }
+
+    .footer-brand-icon {
+      width: 26px; height: 26px;
+      background: linear-gradient(135deg, var(--blue), #7C3AED);
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+    }
+
+    .footer-brand-icon svg {
+      width: 13px; height: 13px;
+      stroke: white; stroke-width: 2.5;
+      fill: none; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .footer p { color: #6B7280; font-size: 0.82rem; }
+
+    /* RESPONSIVE */
     @media (max-width: 900px) {
-      .nav-links {
-        display: none;
+      .nav-links { display: none; }
+
+      #planner { padding: 8px 8px 8px 18px; }
+      .search-divider { display: none; }
+
+      .photo-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: 175px;
       }
 
-      .hero {
-        min-height: auto;
-        padding: 104px 0 48px;
-      }
-
-      .hero-inner {
-        grid-template-columns: 1fr;
-      }
-
-      h1 {
-        max-width: 11ch;
-      }
-
-      .trip-card {
-        transform: none;
-      }
-
-      .trust-row,
-      .results-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .photo-gallery {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        grid-auto-rows: 170px;
-      }
-
-      .section-header {
-        display: block;
-      }
-
-      .section-header p {
-        margin-top: 10px;
-      }
+      .results-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 560px) {
-      .nav-inner,
-      .hero-inner,
-      .gallery-section,
-      .results-section {
-        width: min(100% - 24px, 1180px);
+      #planner {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 16px;
+        border-radius: 16px;
+        gap: 10px;
       }
 
-      .hero {
-        padding-top: 94px;
-      }
+      .length-picker { justify-content: center; }
+      .search-btn { width: 100%; }
 
-      .hero-actions,
-      .trust-row {
+      .photo-grid {
         grid-template-columns: 1fr;
+        grid-auto-rows: 200px;
       }
 
-      .hero-button,
-      .hero-link {
-        width: 100%;
-      }
+      .photo-item.tall { grid-row: auto; }
 
-      .trust-row {
-        display: grid;
-      }
-
-      .trip-photo {
-        min-height: 220px;
-      }
-
-      .search-panel,
-      .result-card,
-      .side-card {
-        padding: 18px;
-      }
-
-      .length-options {
-        grid-template-columns: 1fr;
-      }
-
-      .photo-gallery {
-        grid-template-columns: 1fr;
-        grid-auto-rows: 240px;
-      }
-
-      .gallery-item,
-      .gallery-item.tall,
-      .gallery-item.wide {
-        grid-column: auto;
-        grid-row: auto;
-      }
+      .trust-pills { gap: 8px; }
     }
   </style>
 </head>
 <body>
-  <div class="site-shell">
-    <nav class="nav" aria-label="Primary navigation">
-      <div class="nav-inner">
-        <a class="brand" href="#top" aria-label="JetBuddie home">
-          <span class="logo" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M3 11.5 21 4l-7.5 18-2.6-7.8L3 11.5Z"></path>
-              <path d="m11 14 4-4"></path>
-            </svg>
-          </span>
-          <span>JetBuddie</span>
-        </a>
-        <div class="nav-links">
-          <a href="#planner">Planner</a>
-          <a href="#results">Itinerary</a>
-          <a href="#packing">Packing</a>
-          <a class="nav-cta" href="#planner">Start planning</a>
-        </div>
-      </div>
-    </nav>
 
-    <main id="top">
-      <section class="hero" aria-label="JetBuddie budget travel planner">
-        <div class="hero-inner">
-          <div class="hero-copy">
-            <p class="eyebrow">Premium trips, budget instincts</p>
-            <h1>Go farther without going <span class="accent">broke</span></h1>
-            <p>JetBuddie turns one destination into a polished route, daily plan, packing checklist, and budget strategy for travelers who want the best parts of the world without the premium markup.</p>
-            <div class="hero-actions">
-              <a class="hero-button" href="#planner">Plan a trip</a>
-              <a class="hero-link" href="#results">See sample plan</a>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#top">
+        <span class="brand-icon">
+          <svg viewBox="0 0 24 24"><path d="M3 11.5 21 4l-7.5 18-2.6-7.8L3 11.5Z"/><path d="m11 14 4-4"/></svg>
+        </span>
+        JetBuddie
+      </a>
+      <div class="nav-links">
+        <a href="#top">Plan a trip</a>
+        <a href="#explore">Explore</a>
+        <a href="#results">Results</a>
+        <a class="nav-cta" href="#top">Start free</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <div class="hero-inner">
+      <div class="eyebrow">✈️ AI-powered travel planning</div>
+      <h1>Go farther<br>without going <span class="accent">broke</span></h1>
+      <p class="hero-sub">Enter your dream destination and get a full itinerary, hotel picks, packing list, and budget tips — instantly.</p>
+
+      <form id="itinerary-form">
+        <div id="planner" class="search-wrap">
+          <div id="search-bar" style="background:white;border-radius:18px;border:1.5px solid var(--border);box-shadow:var(--shadow);padding:10px 10px 10px 24px;display:flex;align-items:center;gap:10px;max-width:720px;margin:0 auto 14px;">
+            <input
+              id="destination"
+              name="destination"
+              type="text"
+              class="search-input"
+              autocomplete="off"
+              placeholder="Where do you want to go?"
+              required
+            >
+            <div class="search-divider"></div>
+            <div class="length-picker" role="radiogroup" aria-label="Trip length">
+              <label><input type="radio" name="tripLength" value="3 days" checked><span>3 days</span></label>
+              <label><input type="radio" name="tripLength" value="5 days"><span>5 days</span></label>
+              <label><input type="radio" name="tripLength" value="1 week"><span>1 week</span></label>
             </div>
-            <div class="trust-row" aria-label="JetBuddie highlights">
-              <div class="trust-stat">
-                <strong>3 min</strong>
-                <span>from idea to first route</span>
+            <button id="submit-button" type="submit" class="search-btn">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              Plan my trip
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <p id="status" class="status-msg" role="status" aria-live="polite"></p>
+
+      <div class="trust-pills">
+        <span class="trust-pill">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Free to use
+        </span>
+        <span class="trust-pill">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Results in seconds
+        </span>
+        <span class="trust-pill">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Budget-focused advice
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="gallery-section" id="explore">
+    <div class="section-inner">
+      <p class="section-tag">Explore destinations</p>
+      <h2 class="section-title">Where will you go next?</h2>
+      <div class="photo-grid">
+        <figure class="photo-item tall" data-destination="Maldives" role="button" tabindex="0" aria-label="Plan a trip to Maldives">
+          <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" alt="Maldives beach" loading="lazy">
+          <div class="photo-overlay"></div>
+          <figcaption class="photo-label">Maldives</figcaption>
+          <span class="photo-cta">Plan this trip →</span>
+        </figure>
+        <figure class="photo-item" data-destination="Santorini Greece" role="button" tabindex="0" aria-label="Plan a trip to Santorini">
+          <img src="https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80" alt="Santorini Greece" loading="lazy">
+          <div class="photo-overlay"></div>
+          <figcaption class="photo-label">Santorini</figcaption>
+          <span class="photo-cta">Plan this trip →</span>
+        </figure>
+        <figure class="photo-item" data-destination="Dubai" role="button" tabindex="0" aria-label="Plan a trip to Dubai">
+          <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80" alt="Dubai skyline" loading="lazy">
+          <div class="photo-overlay"></div>
+          <figcaption class="photo-label">Dubai</figcaption>
+          <span class="photo-cta">Plan this trip →</span>
+        </figure>
+        <figure class="photo-item" data-destination="Dolomites Italy" role="button" tabindex="0" aria-label="Plan a trip to the Dolomites">
+          <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80" alt="Dolomites Italy" loading="lazy">
+          <div class="photo-overlay"></div>
+          <figcaption class="photo-label">Dolomites</figcaption>
+          <span class="photo-cta">Plan this trip →</span>
+        </figure>
+        <figure class="photo-item" data-destination="Taj Mahal India" role="button" tabindex="0" aria-label="Plan a trip to the Taj Mahal">
+          <img src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=800&q=80" alt="Taj Mahal India" loading="lazy">
+          <div class="photo-overlay"></div>
+          <figcaption class="photo-label">Taj Mahal</figcaption>
+          <span class="photo-cta">Plan this trip →</span>
+        </figure>
+        <figure class="photo-item tall" data-destination="Machu Picchu Peru" role="button" tabindex="0" aria-label="Plan a trip to Machu Picchu">
+          <img src="https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=800&q=80" alt="Machu Picchu Peru" loading="lazy">
+          <div class="photo-overlay"></div>
+          <figcaption class="photo-label">Machu Picchu</figcaption>
+          <span class="photo-cta">Plan this trip →</span>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="results-section" id="results">
+    <div class="section-inner">
+      <p class="section-tag">Your plan</p>
+      <h2 class="section-title" style="margin-bottom: 22px;">Your JetBuddie itinerary</h2>
+
+      <div class="results-grid">
+        <article id="result" class="result-card">
+          <div class="placeholder">
+            <div>
+              <div class="placeholder-icon">
+                <svg viewBox="0 0 24 24"><path d="M3 11.5 21 4l-7.5 18-2.6-7.8L3 11.5Z"/><path d="m11 14 4-4"/></svg>
               </div>
-              <div class="trust-stat">
-                <strong>Budget</strong>
-                <span>food, transit, and activity tips</span>
-              </div>
-              <div class="trust-stat">
-                <strong>Flexible</strong>
-                <span>weekends, long weekends, or a full week</span>
-              </div>
+              <p class="placeholder-title">Your itinerary will appear here</p>
+              <p class="placeholder-sub">Search a destination above to get started</p>
             </div>
           </div>
+        </article>
 
-          <aside class="trip-card" id="planner" aria-label="Destination search">
-            <div class="trip-photo">
-              <div class="trip-photo-label">Beach mornings, city nights, hostel-friendly plans.</div>
-            </div>
-            <div class="search-panel">
-              <form id="itinerary-form">
-                <div class="field">
-                  <label for="destination">Where do you want to go?</label>
-                  <input id="destination" name="destination" type="text" autocomplete="off" placeholder="Lisbon, Bali, Mexico City..." required>
-                </div>
+        <aside class="side-stack">
+          <section class="side-card" id="packing">
+            <div class="card-tag">Packing list</div>
+            <h3>Carry-on essentials</h3>
+            <ul id="packing-list">
+              <li>Comfortable walking shoes, already broken in</li>
+              <li>Portable charger, adapter, and downloaded maps</li>
+              <li>Reusable bottle, compact rain shell, day bag</li>
+              <li>Copies of passport, bookings, and insurance</li>
+            </ul>
+          </section>
 
-                <div class="field">
-                  <label>Trip length</label>
-                  <div class="length-options" role="radiogroup" aria-label="Trip length">
-                    <label>
-                      <input type="radio" name="tripLength" value="3 days" checked>
-                      <span>3 days</span>
-                    </label>
-                    <label>
-                      <input type="radio" name="tripLength" value="5 days">
-                      <span>5 days</span>
-                    </label>
-                    <label>
-                      <input type="radio" name="tripLength" value="1 week">
-                      <span>1 week</span>
-                    </label>
-                  </div>
-                </div>
+          <section class="side-card">
+            <div class="card-tag">Budget tips</div>
+            <h3>Spend where it matters</h3>
+            <ul id="budget-tips">
+              <li>Book central lodging to cut rideshare costs.</li>
+              <li>Use lunch specials, keep dinners casual.</li>
+              <li>Group nearby attractions to save on transit.</li>
+              <li>Reserve one paid experience; fill the rest free.</li>
+            </ul>
+          </section>
+        </aside>
+      </div>
 
-                <button id="submit-button" type="submit">Generate my trip</button>
-              </form>
-              <p id="status" class="status" role="status" aria-live="polite"></p>
-            </div>
-          </aside>
+      <div id="book-bar" class="book-bar" style="display:none" aria-label="Book this trip">
+        <p class="book-bar-label">Ready to book? Find deals for <span id="book-destination">your destination</span></p>
+        <div class="book-bar-actions">
+          <a id="book-hotels-btn" class="book-btn book-btn-hotels" href="#" target="_blank" rel="noopener noreferrer">🏨 Book Hotels</a>
+          <a id="book-flights-btn" class="book-btn book-btn-flights" href="#" target="_blank" rel="noopener noreferrer">✈️ Find Flights</a>
         </div>
-      </section>
+      </div>
+    </div>
+  </section>
 
-      <section class="gallery-section" aria-label="Travel inspiration photo gallery">
-        <h2>Where will you go next?</h2>
-        <div class="photo-gallery">
-          <figure class="gallery-item tall" data-destination="Maldives" role="button" tabindex="0" aria-label="Generate a Maldives itinerary">
-            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" alt="Turquoise waves rolling onto a tropical beach">
-            <figcaption class="gallery-label">Maldives</figcaption>
-          </figure>
-          <figure class="gallery-item wide" data-destination="Dolomites Italy" role="button" tabindex="0" aria-label="Generate a Dolomites Italy itinerary">
-            <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80" alt="Mountain valley with a winding road and dramatic peaks">
-            <figcaption class="gallery-label">Dolomites Italy</figcaption>
-          </figure>
-          <figure class="gallery-item" data-destination="Dubai" role="button" tabindex="0" aria-label="Generate a Dubai itinerary">
-            <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80" alt="Modern city skyline glowing at dusk">
-            <figcaption class="gallery-label">Dubai</figcaption>
-          </figure>
-          <figure class="gallery-item" data-destination="Taj Mahal India" role="button" tabindex="0" aria-label="Generate a Taj Mahal India itinerary">
-            <img src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=800&q=80" alt="Taj Mahal reflecting in the water at sunrise">
-            <figcaption class="gallery-label">Taj Mahal India</figcaption>
-          </figure>
-          <figure class="gallery-item wide" data-destination="Santorini Greece" role="button" tabindex="0" aria-label="Generate a Santorini Greece itinerary">
-            <img src="https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80" alt="White buildings and blue domes above the sea in Santorini">
-            <figcaption class="gallery-label">Santorini Greece</figcaption>
-          </figure>
-          <figure class="gallery-item tall" data-destination="Machu Picchu Peru" role="button" tabindex="0" aria-label="Generate a Machu Picchu Peru itinerary">
-            <img src="https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=800&q=80" alt="Machu Picchu terraces surrounded by green mountains">
-            <figcaption class="gallery-label">Machu Picchu Peru</figcaption>
-          </figure>
-        </div>
-      </section>
-
-      <section class="results-section" id="results" aria-label="Trip planning results">
-        <div class="section-header">
-          <h2>Your JetBuddie plan</h2>
-          <p>Search any destination to replace the starter plan with a custom itinerary, budget guidance, and packing ideas built around your selected trip length.</p>
-        </div>
-
-        <div class="results-grid">
-          <article id="result" class="result-card">
-            <span class="badge">Sample itinerary</span>
-            <h1>Lisbon on a student-friendly budget</h1>
-            <h2>Day 1: Alfama, viewpoints, and cheap eats</h2>
-            <p>Start with a tram ride into Alfama, walk between miradouros, and keep lunch simple with bifanas or a market stall meal. Save paid attractions for one or two must-see stops.</p>
-            <h2>Day 2: Belem and riverside wandering</h2>
-            <p>Use public transit to reach Belem early, share pastries with friends, then spend the afternoon along the waterfront before a low-cost dinner in Bairro Alto.</p>
-            <h2>Day 3: Sintra or beach day</h2>
-            <p>Pick one day trip instead of trying to do everything. Sintra works for castles and views; Cascais works when you want a lower-effort beach reset.</p>
-          </article>
-
-          <aside class="side-stack">
-            <section class="side-card" id="packing">
-              <span class="badge">Packing list</span>
-              <h3>Carry-on essentials</h3>
-              <ul id="packing-list">
-                <li>Comfortable walking shoes and one nicer evening layer</li>
-                <li>Portable charger, universal adapter, and offline maps</li>
-                <li>Reusable bottle, compact rain shell, and day bag</li>
-                <li>Copies of passport, booking confirmations, and insurance</li>
-              </ul>
-            </section>
-
-            <section class="side-card">
-              <span class="badge">Budget tips</span>
-              <h3>Spend where it matters</h3>
-              <ul id="budget-tips">
-                <li>Book central lodging when it cuts down on rideshares.</li>
-                <li>Use lunch specials for restaurants and keep dinners casual.</li>
-                <li>Group nearby attractions to avoid extra transit costs.</li>
-                <li>Reserve one paid experience, then fill the rest with free walks.</li>
-              </ul>
-            </section>
-          </aside>
-        </div>
-      </section>
-    </main>
-  </div>
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="footer-brand-icon">
+          <svg viewBox="0 0 24 24"><path d="M3 11.5 21 4l-7.5 18-2.6-7.8L3 11.5Z"/><path d="m11 14 4-4"/></svg>
+        </span>
+        JetBuddie
+      </div>
+      <p>"Go farther without going broke" · jetbuddie.com</p>
+    </div>
+  </footer>
 
   <script>
-    const form = document.getElementById("itinerary-form");
-    const destinationInput = document.getElementById("destination");
-    const statusEl = document.getElementById("status");
-    const resultEl = document.getElementById("result");
-    const packingListEl = document.getElementById("packing-list");
-    const budgetTipsEl = document.getElementById("budget-tips");
-    const submitButton = document.getElementById("submit-button");
-    const galleryItems = document.querySelectorAll(".gallery-item[data-destination]");
-    let itineraryStream = null;
+    const form          = document.getElementById("itinerary-form");
+    const destInput     = document.getElementById("destination");
+    const statusEl      = document.getElementById("status");
+    const resultEl      = document.getElementById("result");
+    const packingEl     = document.getElementById("packing-list");
+    const budgetEl      = document.getElementById("budget-tips");
+    const submitBtn     = document.getElementById("submit-button");
+    const galleryItems  = document.querySelectorAll(".photo-item[data-destination]");
+    const bookBar       = document.getElementById("book-bar");
+    const bookDestEl    = document.getElementById("book-destination");
+    const bookHotelsBtn = document.getElementById("book-hotels-btn");
+    const bookFlightsBtn= document.getElementById("book-flights-btn");
+    let stream = null;
+
+    // TODO: Replace with your real CJ Affiliate tracking URLs when approved
+    const getHotelsUrl  = d => `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(d)}`;
+    const getFlightsUrl = d => `https://www.google.com/travel/flights?q=flights+to+${encodeURIComponent(d)}`;
 
     const defaultPacking = [
-      "Comfortable walking shoes and one nicer evening layer",
-      "Portable charger, universal adapter, and offline maps",
-      "Reusable bottle, compact rain shell, and day bag",
-      "Copies of passport, booking confirmations, and insurance"
+      "Comfortable walking shoes, already broken in",
+      "Portable charger, adapter, and downloaded maps",
+      "Reusable bottle, compact rain shell, day bag",
+      "Copies of passport, bookings, and insurance"
     ];
 
-    const defaultBudgetTips = [
-      "Book central lodging when it cuts down on rideshares.",
-      "Use lunch specials for restaurants and keep dinners casual.",
-      "Group nearby attractions to avoid extra transit costs.",
-      "Reserve one paid experience, then fill the rest with free walks."
+    const defaultBudget = [
+      "Book central lodging to cut rideshare costs.",
+      "Use lunch specials, keep dinners casual.",
+      "Group nearby attractions to save on transit.",
+      "Reserve one paid experience; fill the rest free."
     ];
 
-    function escapeHtml(value) {
-      return value
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+    function esc(v) {
+      return v.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+               .replaceAll('"',"&quot;").replaceAll("'","&#039;");
     }
 
-    function formatInlineMarkdown(value) {
-      return escapeHtml(value)
+    function inlineMd(v) {
+      return esc(v)
         .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
         .replace(/(^|[^\*])\*(?!\s)(.+?)(?<!\s)\*/g, "$1<em>$2</em>");
     }
 
-    function markdownToHtml(markdown) {
-      const lines = markdown.split(/\r?\n/);
-      const html = [];
-      let listType = null;
-
-      function closeList() {
-        if (listType) {
-          html.push(`</${listType}>`);
-          listType = null;
-        }
-      }
-
-      for (const rawLine of lines) {
-        const line = rawLine.trim();
-
-        if (!line) {
-          closeList();
-          continue;
-        }
-
-        const heading = line.match(/^(#{1,6})\s*(.+)$/);
-        if (heading) {
-          closeList();
-          html.push(`<h${heading[1].length}>${formatInlineMarkdown(heading[2])}</h${heading[1].length}>`);
-          continue;
-        }
-
-        const bullet = line.match(/^[-*]\s+(.+)$/);
-        if (bullet) {
-          if (listType !== "ul") {
-            closeList();
-            html.push("<ul>");
-            listType = "ul";
-          }
-          html.push(`<li>${formatInlineMarkdown(bullet[1])}</li>`);
-          continue;
-        }
-
-        const numbered = line.match(/^\d+\.\s+(.+)$/);
-        if (numbered) {
-          if (listType !== "ol") {
-            closeList();
-            html.push("<ol>");
-            listType = "ol";
-          }
-          html.push(`<li>${formatInlineMarkdown(numbered[1])}</li>`);
-          continue;
-        }
-
+    function mdToHtml(md) {
+      const lines = md.split(/\r?\n/);
+      const out = [];
+      let list = null;
+      const closeList = () => { if (list) { out.push(`</${list}>`); list = null; } };
+      for (const raw of lines) {
+        const l = raw.trim();
+        if (!l) { closeList(); continue; }
+        const h = l.match(/^(#{1,6})\s*(.+)$/);
+        if (h) { closeList(); out.push(`<h${h[1].length}>${inlineMd(h[2])}</h${h[1].length}>`); continue; }
+        const b = l.match(/^[-*]\s+(.+)$/);
+        if (b) { if (list !== "ul") { closeList(); out.push("<ul>"); list = "ul"; } out.push(`<li>${inlineMd(b[1])}</li>`); continue; }
+        const n = l.match(/^\d+\.\s+(.+)$/);
+        if (n) { if (list !== "ol") { closeList(); out.push("<ol>"); list = "ol"; } out.push(`<li>${inlineMd(n[1])}</li>`); continue; }
         closeList();
-        html.push(`<p>${formatInlineMarkdown(line)}</p>`);
+        out.push(`<p>${inlineMd(l)}</p>`);
       }
-
       closeList();
-      return html.join("");
+      return out.join("");
     }
 
-    function renderList(element, items) {
-      element.innerHTML = items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+    function renderList(el, items) {
+      el.innerHTML = items.map(i => `<li>${esc(i)}</li>`).join("");
     }
 
-    function buildPackingList(destination, tripLength) {
+    function packingFor(dest, len) {
       return [
-        `Carry-on capsule outfits for ${tripLength} in ${destination}`,
-        "Comfortable shoes already broken in before departure",
-        "Portable charger, adapter, and downloaded maps",
-        "Compact toiletry kit, refillable bottle, and day bag"
+        `Outfits for ${len} in ${dest} — pack light`,
+        "Shoes already broken in before departure",
+        "Portable charger, adapter, and offline maps",
+        "Compact toiletries, refillable bottle, day bag"
       ];
     }
 
-    function buildBudgetTips(destination, tripLength) {
+    function budgetFor(dest, len) {
       return [
-        `Set one daily splurge for ${destination} and keep the rest flexible.`,
-        `For ${tripLength}, book lodging near transit before chasing the cheapest room.`,
-        "Use grocery breakfasts, lunch specials, and casual dinners to stretch cash.",
-        "Bundle neighborhoods by day so transit costs stay predictable."
+        `Set one daily splurge for ${dest}, keep the rest flexible.`,
+        "Book lodging near transit before chasing the cheapest room.",
+        "Grocery breakfasts, lunch specials, and casual dinners stretch cash.",
+        "Bundle neighborhoods by day so transit stays predictable."
       ];
     }
 
-    function setLoading(isLoading) {
-      submitButton.disabled = isLoading;
-      submitButton.textContent = isLoading ? "Generating..." : "Generate my trip";
+    function setLoading(on) {
+      submitBtn.disabled = on;
+      submitBtn.innerHTML = on
+        ? `<svg class="spin" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;stroke-width:2.5;fill:none;stroke-linecap:round"><circle cx="12" cy="12" r="9" stroke-opacity="0.25"/><path d="M12 3a9 9 0 0 1 9 9"/></svg> Generating...`
+        : `<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;stroke-width:2.5;fill:none;stroke-linecap:round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Plan my trip`;
     }
 
-    function closeItineraryStream() {
-      if (itineraryStream) {
-        itineraryStream.close();
-        itineraryStream = null;
-      }
+    function closeStream() {
+      if (stream) { stream.close(); stream = null; }
     }
 
-    function generateGalleryDestination(item) {
-      const destination = item.dataset.destination;
+    function placeholder(icon, title, sub) {
+      return `<div class="placeholder"><div>
+        <div class="placeholder-icon">
+          <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:#94A3B8;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round">${icon}</svg>
+        </div>
+        <p class="placeholder-title">${title}</p>
+        <p class="placeholder-sub">${sub}</p>
+      </div></div>`;
+    }
 
-      if (!destination) {
-        return;
-      }
-
-      destinationInput.value = destination;
+    function triggerDestination(dest) {
+      destInput.value = dest;
       document.getElementById("planner").scrollIntoView({ behavior: "smooth", block: "center" });
-      window.setTimeout(() => {
-        form.requestSubmit();
-      }, 800);
+      setTimeout(() => form.requestSubmit(), 750);
     }
 
-    galleryItems.forEach((item) => {
-      item.addEventListener("click", () => {
-        generateGalleryDestination(item);
-      });
-
-      item.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          generateGalleryDestination(item);
-        }
+    galleryItems.forEach(item => {
+      item.addEventListener("click", () => triggerDestination(item.dataset.destination));
+      item.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); triggerDestination(item.dataset.destination); }
       });
     });
 
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-      closeItineraryStream();
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      closeStream();
 
-      const destination = destinationInput.value.trim();
-      const tripLength = new FormData(form).get("tripLength") || "3 days";
+      const dest = destInput.value.trim();
+      const len  = new FormData(form).get("tripLength") || "3 days";
+      if (!dest) { destInput.focus(); return; }
 
-      if (!destination) {
-        destinationInput.focus();
-        return;
-      }
-
-      statusEl.textContent = `Building a ${tripLength} JetBuddie plan for ${destination}...`;
+      statusEl.textContent = `Building your ${len} plan for ${dest}...`;
       statusEl.classList.remove("error");
-      resultEl.innerHTML = '<div class="placeholder">Generating your itinerary...</div>';
-      renderList(packingListEl, buildPackingList(destination, tripLength));
-      renderList(budgetTipsEl, buildBudgetTips(destination, tripLength));
+      bookBar.style.display = "none";
+      resultEl.innerHTML = placeholder(
+        '<path d="M3 11.5 21 4l-7.5 18-2.6-7.8L3 11.5Z"/><path d="m11 14 4-4"/>',
+        "Generating your itinerary...",
+        "This usually takes about 10 seconds"
+      );
+      renderList(packingEl, packingFor(dest, len));
+      renderList(budgetEl,  budgetFor(dest, len));
       setLoading(true);
       document.getElementById("results").scrollIntoView({ behavior: "smooth", block: "start" });
 
-      let streamedMarkdown = "";
-      const params = new URLSearchParams({ destination, tripLength });
-      itineraryStream = new EventSource(`/api/itinerary/stream?${params.toString()}`);
+      let md = "";
+      const params = new URLSearchParams({ destination: dest, tripLength: len });
+      stream = new EventSource(`/api/itinerary/stream?${params}`);
 
-      itineraryStream.addEventListener("start", (message) => {
-        const data = JSON.parse(message.data);
-        statusEl.textContent = `Streaming a ${data.tripLength} itinerary for ${data.destination}...`;
+      stream.addEventListener("start", msg => {
+        const d = JSON.parse(msg.data);
+        statusEl.textContent = `Streaming ${d.tripLength} itinerary for ${d.destination}...`;
         resultEl.innerHTML = "";
       });
 
-      itineraryStream.addEventListener("token", (message) => {
-        const data = JSON.parse(message.data);
-        streamedMarkdown += data.text;
-        resultEl.innerHTML = markdownToHtml(streamedMarkdown);
+      stream.addEventListener("token", msg => {
+        md += JSON.parse(msg.data).text;
+        resultEl.innerHTML = mdToHtml(md);
         resultEl.scrollTop = resultEl.scrollHeight;
       });
 
-      itineraryStream.addEventListener("done", (message) => {
-        const data = JSON.parse(message.data);
-        statusEl.textContent = `${data.tripLength} itinerary ready for ${data.destination}`;
+      stream.addEventListener("done", msg => {
+        const d = JSON.parse(msg.data);
+        statusEl.textContent = `${d.tripLength} itinerary ready for ${d.destination} ✓`;
         setLoading(false);
-        closeItineraryStream();
+        closeStream();
+        bookDestEl.textContent = d.destination;
+        bookHotelsBtn.href = getHotelsUrl(d.destination);
+        bookFlightsBtn.href = getFlightsUrl(d.destination);
+        bookBar.style.display = "flex";
       });
 
-      itineraryStream.addEventListener("error", (message) => {
-        const error = message.data
-          ? JSON.parse(message.data).error
-          : "The itinerary stream was interrupted.";
-
-        statusEl.textContent = error;
+      stream.addEventListener("error", msg => {
+        const err = msg.data ? JSON.parse(msg.data).error : "Stream interrupted.";
+        statusEl.textContent = err;
         statusEl.classList.add("error");
-        resultEl.innerHTML = '<div class="placeholder">Try another destination or check the server logs.</div>';
-        renderList(packingListEl, defaultPacking);
-        renderList(budgetTipsEl, defaultBudgetTips);
+        resultEl.innerHTML = placeholder(
+          '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>',
+          "Something went wrong",
+          "Try another destination or refresh the page"
+        );
+        renderList(packingEl, defaultPacking);
+        renderList(budgetEl,  defaultBudget);
         setLoading(false);
-        closeItineraryStream();
+        closeStream();
       });
     });
   </script>
