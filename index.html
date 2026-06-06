@@ -1052,6 +1052,15 @@
       return out.join("");
     }
 
+    async function fetchRealPhoto(destination) {
+      try {
+        const res = await fetch(`/api/photo?destination=${encodeURIComponent(destination)}`);
+        const data = await res.json();
+        if (data.url) return data.url;
+      } catch {}
+      return getPhotoUrl(destination); // fallback to local map
+    }
+
     function startStream(message) {
       let raw = "";
       let destParsed = false;
@@ -1067,18 +1076,24 @@
       activeStream.addEventListener("token", msg => {
         raw += JSON.parse(msg.data).text;
 
-        // Parse DESTINATION: line as soon as it arrives
+        // Parse DESTINATION: line as soon as it arrives, then fetch real photo
         if (!destParsed) {
           const match = raw.match(/^DESTINATION:\s*(.+?)(\n|$)/i);
           if (match) {
             detectedDest = match[1].trim();
             destParsed = true;
             resultDestEl.textContent = detectedDest;
+            // Set fallback immediately, then swap in the real photo
             resultBgPhoto.style.backgroundImage = `url(${getPhotoUrl(detectedDest)})`;
+            fetchRealPhoto(detectedDest).then(url => {
+              const img = new Image();
+              img.onload = () => { resultBgPhoto.style.backgroundImage = `url(${url})`; };
+              img.src = url;
+            });
           }
         }
 
-        // Show itinerary content without the DESTINATION line
+        // Show itinerary without the DESTINATION line
         const itinerary = raw.replace(/^DESTINATION:.*\n?/i, "").trim();
         if (itinerary) {
           resultItinEl.innerHTML = mdToHtml(itinerary);

@@ -38,6 +38,34 @@ def safe_print(message):
         print(str(message).encode("ascii", errors="backslashreplace").decode("ascii"))
 
 
+def fetch_photo_url(destination):
+    """Fetch a real location photo from Unsplash."""
+    access_key = os.getenv("UNSPLASH_ACCESS_KEY", "")
+    if not access_key:
+        return None
+    try:
+        from urllib.request import urlopen, Request
+        from urllib.parse import urlencode
+        params = urlencode({
+            "query": f"{destination} travel landmark",
+            "orientation": "landscape",
+            "per_page": 1,
+            "content_filter": "high",
+        })
+        req = Request(
+            f"https://api.unsplash.com/search/photos?{params}",
+            headers={"Authorization": f"Client-ID {access_key}"},
+        )
+        with urlopen(req, timeout=6) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            results = data.get("results", [])
+            if results:
+                return results[0]["urls"]["regular"]
+    except Exception:
+        pass
+    return None
+
+
 def build_prompt(message):
     return f"""
 A traveler just sent you this message: "{message}"
@@ -101,6 +129,10 @@ class TravelRequestHandler(BaseHTTPRequestHandler):
             self.stream_itinerary(parsed_url.query)
             return
 
+        if parsed_url.path == "/api/photo":
+            self.serve_photo(parsed_url.query)
+            return
+
         self.send_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
 
     def stream_itinerary(self, query_string):
@@ -137,6 +169,15 @@ class TravelRequestHandler(BaseHTTPRequestHandler):
                 self.write_sse("error", {"error": f"Could not generate an itinerary: {exc}"})
             except (BrokenPipeError, ConnectionResetError):
                 return
+
+    def serve_photo(self, query_string):
+        query = parse_qs(query_string)
+        destination = str((query.get("destination") or [""])[0]).strip()
+        if not destination:
+            self.send_json({"url": None}, HTTPStatus.BAD_REQUEST)
+            return
+        url = fetch_photo_url(destination)
+        self.send_json({"url": url})
 
     def do_POST(self):
         self.send_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
