@@ -57,9 +57,6 @@
       pointer-events: none;
       transition: opacity 500ms ease, transform 500ms ease;
       background-color: #0a0a0a;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
     }
 
     #screen-result.visible {
@@ -68,21 +65,32 @@
       pointer-events: all;
     }
 
+    #result-bg-photo {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      filter: saturate(1.3) brightness(1.08);
+      z-index: 0;
+    }
+
     .result-bg-overlay {
       position: absolute;
       inset: 0;
+      z-index: 1;
       background: linear-gradient(
-        135deg,
-        rgba(0,0,0,0.78) 0%,
-        rgba(0,0,0,0.55) 50%,
-        rgba(0,0,0,0.35) 100%
+        to right,
+        rgba(0,0,0,0.58) 0%,
+        rgba(0,0,0,0.28) 50%,
+        rgba(0,0,0,0.06) 100%
       );
     }
 
     /* ── RESULT NAV ── */
     .result-nav {
       position: relative;
-      z-index: 2;
+      z-index: 3;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -142,7 +150,7 @@
     /* ── RESULT CONTENT ── */
     .result-body {
       position: relative;
-      z-index: 2;
+      z-index: 3;
       flex: 1;
       display: flex;
       align-items: center;
@@ -707,6 +715,7 @@
 
   <!-- ── RESULT SCREEN ── -->
   <div id="screen-result">
+    <div id="result-bg-photo"></div>
     <div class="result-bg-overlay"></div>
 
     <nav class="result-nav">
@@ -876,6 +885,7 @@
 
     const screenSearch   = document.getElementById("screen-search");
     const screenResult   = document.getElementById("screen-result");
+    const resultBgPhoto  = document.getElementById("result-bg-photo");
     const backBtn        = document.getElementById("back-btn");
     const resultDestEl   = document.getElementById("result-dest-name");
     const resultLengthEl = document.getElementById("result-trip-length");
@@ -983,7 +993,7 @@
       resultLengthEl.textContent = tripLength;
       resultItinEl.innerHTML = `<div class="result-loading"><div class="spinner"></div><span>Building your itinerary...</span></div>`;
       resultBookBar.style.display = "none";
-      screenResult.style.backgroundImage = `url(${getPhotoUrl(destination)})`;
+      resultBgPhoto.style.backgroundImage = `url(${getPhotoUrl(destination)})`;
 
       screenSearch.classList.add("hidden");
       screenResult.classList.add("visible");
