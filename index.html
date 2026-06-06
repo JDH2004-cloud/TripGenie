@@ -21,6 +21,7 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
     html { scroll-behavior: smooth; }
 
     body {
@@ -28,11 +29,247 @@
       color: var(--text);
       background: var(--bg);
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
     a { color: inherit; text-decoration: none; }
 
-    /* NAV */
+    /* ── SCREEN TRANSITIONS ── */
+    #screen-search {
+      transition: opacity 400ms ease, transform 400ms ease;
+    }
+
+    #screen-search.hidden {
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+    }
+
+    #screen-result {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transform: translateY(24px);
+      pointer-events: none;
+      transition: opacity 500ms ease, transform 500ms ease;
+      background-color: #0a0a0a;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    #screen-result.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    .result-bg-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(0,0,0,0.78) 0%,
+        rgba(0,0,0,0.55) 50%,
+        rgba(0,0,0,0.35) 100%
+      );
+    }
+
+    /* ── RESULT NAV ── */
+    .result-nav {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 32px;
+      flex-shrink: 0;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 38px;
+      padding: 0 16px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 9px;
+      color: white;
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      transition: background 150ms;
+    }
+
+    .back-btn:hover { background: rgba(255,255,255,0.20); }
+
+    .back-btn svg {
+      width: 15px; height: 15px;
+      stroke: currentColor; stroke-width: 2.5;
+      fill: none; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .result-brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: white;
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .result-brand-icon {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, var(--blue), #7C3AED);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+    }
+
+    .result-brand-icon svg {
+      width: 14px; height: 14px;
+      stroke: white; stroke-width: 2.5;
+      fill: none; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ── RESULT CONTENT ── */
+    .result-body {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 0 48px 32px;
+      min-height: 0;
+    }
+
+    .result-card {
+      width: 100%;
+      max-width: 620px;
+      background: rgba(0,0,0,0.48);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 18px;
+      padding: 32px 36px;
+      backdrop-filter: blur(24px);
+      max-height: calc(100vh - 140px);
+      overflow-y: auto;
+    }
+
+    .result-card::-webkit-scrollbar { width: 4px; }
+    .result-card::-webkit-scrollbar-track { background: transparent; }
+    .result-card::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 999px; }
+
+    .result-dest {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 900;
+      color: white;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      margin-bottom: 6px;
+    }
+
+    .result-length {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 10px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 999px;
+      color: rgba(255,255,255,0.8);
+      font-size: 0.76rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+
+    .result-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.12);
+      margin-bottom: 20px;
+    }
+
+    .itinerary-text {
+      color: rgba(255,255,255,0.88);
+      font-size: 0.97rem;
+      line-height: 1.75;
+    }
+
+    .itinerary-text h1 { font-size: 1.3rem; color: white; margin-bottom: 12px; font-weight: 700; max-width: none; }
+    .itinerary-text h2 { font-size: 1.05rem; color: white; margin: 1.1em 0 0.3em; font-weight: 700; }
+    .itinerary-text h3 { font-size: 0.97rem; color: white; margin: 0.9em 0 0.25em; font-weight: 700; }
+    .itinerary-text p { margin-bottom: 0.65em; }
+    .itinerary-text ul, .itinerary-text ol { padding-left: 1.2rem; margin-bottom: 0.65em; }
+    .itinerary-text li { margin-bottom: 0.3rem; }
+    .itinerary-text strong { color: white; }
+
+    .result-loading {
+      color: rgba(255,255,255,0.55);
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      flex-shrink: 0;
+    }
+
+    /* ── BOOK BAR ── */
+    .result-book-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .result-book-bar p {
+      flex: 1;
+      font-size: 0.86rem;
+      color: rgba(255,255,255,0.65);
+      font-weight: 500;
+      min-width: 140px;
+    }
+
+    .book-btn {
+      height: 38px;
+      padding: 0 16px;
+      border-radius: 9px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 150ms, opacity 150ms;
+      white-space: nowrap;
+    }
+
+    .book-btn:hover { transform: translateY(-1px); opacity: 0.9; }
+    .book-btn-hotels { background: white; color: var(--text); }
+    .book-btn-flights { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.25); backdrop-filter: blur(8px); }
+
+    /* ── SEARCH SCREEN ── */
     .nav {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -67,7 +304,6 @@
       border-radius: 9px;
       display: grid;
       place-items: center;
-      flex-shrink: 0;
     }
 
     .brand-icon svg {
@@ -103,7 +339,6 @@
 
     .nav-cta:hover { background: var(--blue-dark) !important; transform: translateY(-1px); }
 
-    /* HERO */
     .hero {
       min-height: 100vh;
       background:
@@ -161,10 +396,7 @@
       margin: 0 auto 40px;
     }
 
-    /* SEARCH */
-    .search-wrap { position: relative; }
-
-    #planner {
+    .search-form {
       background: white;
       border-radius: 18px;
       border: 1.5px solid var(--border);
@@ -256,9 +488,6 @@
       fill: none; stroke-linecap: round; stroke-linejoin: round;
     }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spin { animation: spin 0.8s linear infinite; }
-
     .status-msg {
       font-size: 0.88rem;
       color: var(--text-muted);
@@ -296,7 +525,7 @@
       fill: none; stroke-linecap: round; stroke-linejoin: round;
     }
 
-    /* GALLERY */
+    /* ── GALLERY ── */
     .gallery-section {
       background: var(--bg-alt);
       padding: 80px 0;
@@ -394,153 +623,7 @@
       outline-offset: 3px;
     }
 
-    /* RESULTS */
-    .results-section {
-      padding: 72px 0 80px;
-      background: white;
-    }
-
-    .results-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.55fr);
-      gap: 18px;
-      align-items: start;
-    }
-
-    .result-card {
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      background: white;
-      box-shadow: var(--shadow-sm);
-      min-height: 480px;
-      max-height: 70vh;
-      overflow: auto;
-      padding: 28px 30px;
-      line-height: 1.7;
-      font-size: 0.96rem;
-      color: #374151;
-    }
-
-    .result-card::-webkit-scrollbar { width: 5px; }
-    .result-card::-webkit-scrollbar-track { background: transparent; }
-    .result-card::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
-
-    .result-card h1 {
-      font-size: 1.55rem; font-weight: 800; color: var(--text);
-      letter-spacing: -0.02em; margin-bottom: 14px; max-width: none;
-    }
-    .result-card h2 {
-      font-size: 1.08rem; font-weight: 700; color: var(--text);
-      margin: 1.3em 0 0.4em;
-    }
-    .result-card h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin: 1em 0 0.3em; }
-    .result-card p { margin-bottom: 0.75em; }
-    .result-card ul, .result-card ol { padding-left: 1.25rem; margin-bottom: 0.75em; }
-    .result-card li { margin-bottom: 0.3rem; }
-
-    .placeholder {
-      min-height: 380px;
-      display: grid;
-      place-items: center;
-      text-align: center;
-    }
-
-    .placeholder-icon {
-      width: 50px; height: 50px;
-      background: var(--bg-alt);
-      border-radius: 13px;
-      display: grid;
-      place-items: center;
-      margin: 0 auto 14px;
-    }
-
-    .placeholder-icon svg {
-      width: 22px; height: 22px;
-      stroke: #94A3B8; stroke-width: 2;
-      fill: none; stroke-linecap: round; stroke-linejoin: round;
-    }
-
-    .placeholder-title {
-      font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 5px;
-    }
-
-    .placeholder-sub {
-      font-size: 0.86rem; color: var(--text-muted);
-    }
-
-    .side-stack { display: grid; gap: 14px; }
-
-    .side-card {
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      background: white;
-      box-shadow: var(--shadow-sm);
-      padding: 22px;
-    }
-
-    .card-tag {
-      display: inline-flex;
-      align-items: center;
-      height: 24px;
-      padding: 0 9px;
-      background: var(--blue-light);
-      color: var(--blue);
-      border-radius: 6px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      margin-bottom: 11px;
-    }
-
-    .side-card h3 { font-size: 0.97rem; font-weight: 700; color: var(--text); margin-bottom: 10px; }
-    .side-card ul { padding-left: 1.1rem; }
-    .side-card li { margin-bottom: 0.45rem; color: #374151; font-size: 0.9rem; line-height: 1.5; }
-
-    /* BOOK BAR */
-    .book-bar {
-      margin-top: 16px;
-      border: 1.5px solid #BFDBFE;
-      border-radius: var(--radius);
-      padding: 18px 22px;
-      background: var(--blue-light);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
-
-    .book-bar-label {
-      font-size: 0.93rem;
-      font-weight: 700;
-      color: #1E3A8A;
-    }
-
-    .book-bar-label span { color: var(--blue); }
-
-    .book-bar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
-    .book-btn {
-      height: 40px;
-      padding: 0 16px;
-      border-radius: 9px;
-      font-size: 0.86rem;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-      transition: transform 150ms, box-shadow 150ms;
-    }
-
-    .book-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
-    .book-btn-hotels { background: var(--blue); color: white; }
-    .book-btn-flights { background: white; color: var(--text); border: 1.5px solid var(--border); }
-
-    /* FOOTER */
+    /* ── FOOTER ── */
     .footer {
       background: var(--text);
       padding: 36px 0;
@@ -578,11 +661,11 @@
 
     .footer p { color: #6B7280; font-size: 0.82rem; }
 
-    /* RESPONSIVE */
+    /* ── RESPONSIVE ── */
     @media (max-width: 900px) {
       .nav-links { display: none; }
 
-      #planner { padding: 8px 8px 8px 18px; }
+      .search-form { padding: 8px 8px 8px 18px; }
       .search-divider { display: none; }
 
       .photo-grid {
@@ -590,11 +673,12 @@
         grid-auto-rows: 175px;
       }
 
-      .results-grid { grid-template-columns: 1fr; }
+      .result-body { padding: 0 24px 24px; }
+      .result-card { padding: 24px; }
     }
 
     @media (max-width: 560px) {
-      #planner {
+      .search-form {
         flex-direction: column;
         align-items: stretch;
         padding: 16px;
@@ -612,40 +696,78 @@
 
       .photo-item.tall { grid-row: auto; }
 
-      .trust-pills { gap: 8px; }
+      .result-nav { padding: 16px 20px; }
+      .result-body { padding: 0 20px 20px; }
+      .result-card { padding: 20px; border-radius: 14px; }
+      .result-dest { font-size: 1.8rem; }
     }
   </style>
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav class="nav">
-    <div class="nav-inner">
-      <a class="brand" href="#top">
-        <span class="brand-icon">
+  <!-- ── RESULT SCREEN ── -->
+  <div id="screen-result">
+    <div class="result-bg-overlay"></div>
+
+    <nav class="result-nav">
+      <button class="back-btn" id="back-btn">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </button>
+      <div class="result-brand">
+        <span class="result-brand-icon">
           <svg viewBox="0 0 24 24"><path d="M3 11.5 21 4l-7.5 18-2.6-7.8L3 11.5Z"/><path d="m11 14 4-4"/></svg>
         </span>
         JetBuddie
-      </a>
-      <div class="nav-links">
-        <a href="#top">Plan a trip</a>
-        <a href="#explore">Explore</a>
-        <a href="#results">Results</a>
-        <a class="nav-cta" href="#top">Start free</a>
+      </div>
+    </nav>
+
+    <div class="result-body">
+      <div class="result-card">
+        <h2 class="result-dest" id="result-dest-name"></h2>
+        <span class="result-length" id="result-trip-length"></span>
+        <div class="result-divider"></div>
+        <div id="result-itinerary" class="itinerary-text">
+          <div class="result-loading">
+            <div class="spinner"></div>
+            <span>Building your itinerary...</span>
+          </div>
+        </div>
+        <div id="result-book-bar" class="result-book-bar" style="display:none">
+          <p>Ready to book your trip?</p>
+          <a id="book-hotels-btn" class="book-btn book-btn-hotels" href="#" target="_blank" rel="noopener noreferrer">🏨 Book Hotels</a>
+          <a id="book-flights-btn" class="book-btn book-btn-flights" href="#" target="_blank" rel="noopener noreferrer">✈️ Find Flights</a>
+        </div>
       </div>
     </div>
-  </nav>
+  </div>
 
-  <!-- HERO -->
-  <section class="hero" id="top">
-    <div class="hero-inner">
-      <div class="eyebrow">✈️ AI-powered travel planning</div>
-      <h1>Go farther<br>without going <span class="accent">broke</span></h1>
-      <p class="hero-sub">Enter your dream destination and get a full itinerary, hotel picks, packing list, and budget tips — instantly.</p>
+  <!-- ── SEARCH SCREEN ── -->
+  <div id="screen-search">
+    <nav class="nav">
+      <div class="nav-inner">
+        <a class="brand" href="#top">
+          <span class="brand-icon">
+            <svg viewBox="0 0 24 24"><path d="M3 11.5 21 4l-7.5 18-2.6-7.8L3 11.5Z"/><path d="m11 14 4-4"/></svg>
+          </span>
+          JetBuddie
+        </a>
+        <div class="nav-links">
+          <a href="#top">Plan a trip</a>
+          <a href="#explore">Explore</a>
+          <a class="nav-cta" href="#top">Start free</a>
+        </div>
+      </div>
+    </nav>
 
-      <form id="itinerary-form">
-        <div id="planner" class="search-wrap">
-          <div id="search-bar" style="background:white;border-radius:18px;border:1.5px solid var(--border);box-shadow:var(--shadow);padding:10px 10px 10px 24px;display:flex;align-items:center;gap:10px;max-width:720px;margin:0 auto 14px;">
+    <section class="hero" id="top">
+      <div class="hero-inner">
+        <div class="eyebrow">✈️ AI-powered travel planning</div>
+        <h1>Go farther<br>without going <span class="accent">broke</span></h1>
+        <p class="hero-sub">Enter your dream destination and get a full itinerary, hotel picks, and budget tips — instantly.</p>
+
+        <form id="itinerary-form">
+          <div id="planner" class="search-form">
             <input
               id="destination"
               name="destination"
@@ -666,173 +788,152 @@
               Plan my trip
             </button>
           </div>
-        </div>
-      </form>
+        </form>
 
-      <p id="status" class="status-msg" role="status" aria-live="polite"></p>
+        <p id="status" class="status-msg" role="status" aria-live="polite"></p>
 
-      <div class="trust-pills">
-        <span class="trust-pill">
-          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-          Free to use
-        </span>
-        <span class="trust-pill">
-          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-          Results in seconds
-        </span>
-        <span class="trust-pill">
-          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-          Budget-focused advice
-        </span>
-      </div>
-    </div>
-  </section>
-
-  <!-- GALLERY -->
-  <section class="gallery-section" id="explore">
-    <div class="section-inner">
-      <p class="section-tag">Explore destinations</p>
-      <h2 class="section-title">Where will you go next?</h2>
-      <div class="photo-grid">
-        <figure class="photo-item tall" data-destination="Maldives" role="button" tabindex="0" aria-label="Plan a trip to Maldives">
-          <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" alt="Maldives beach" loading="lazy">
-          <div class="photo-overlay"></div>
-          <figcaption class="photo-label">Maldives</figcaption>
-          <span class="photo-cta">Plan this trip →</span>
-        </figure>
-        <figure class="photo-item" data-destination="Santorini Greece" role="button" tabindex="0" aria-label="Plan a trip to Santorini">
-          <img src="https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80" alt="Santorini Greece" loading="lazy">
-          <div class="photo-overlay"></div>
-          <figcaption class="photo-label">Santorini</figcaption>
-          <span class="photo-cta">Plan this trip →</span>
-        </figure>
-        <figure class="photo-item" data-destination="Dubai" role="button" tabindex="0" aria-label="Plan a trip to Dubai">
-          <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80" alt="Dubai skyline" loading="lazy">
-          <div class="photo-overlay"></div>
-          <figcaption class="photo-label">Dubai</figcaption>
-          <span class="photo-cta">Plan this trip →</span>
-        </figure>
-        <figure class="photo-item" data-destination="Dolomites Italy" role="button" tabindex="0" aria-label="Plan a trip to the Dolomites">
-          <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80" alt="Dolomites Italy" loading="lazy">
-          <div class="photo-overlay"></div>
-          <figcaption class="photo-label">Dolomites</figcaption>
-          <span class="photo-cta">Plan this trip →</span>
-        </figure>
-        <figure class="photo-item" data-destination="Taj Mahal India" role="button" tabindex="0" aria-label="Plan a trip to the Taj Mahal">
-          <img src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=800&q=80" alt="Taj Mahal India" loading="lazy">
-          <div class="photo-overlay"></div>
-          <figcaption class="photo-label">Taj Mahal</figcaption>
-          <span class="photo-cta">Plan this trip →</span>
-        </figure>
-        <figure class="photo-item tall" data-destination="Machu Picchu Peru" role="button" tabindex="0" aria-label="Plan a trip to Machu Picchu">
-          <img src="https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=800&q=80" alt="Machu Picchu Peru" loading="lazy">
-          <div class="photo-overlay"></div>
-          <figcaption class="photo-label">Machu Picchu</figcaption>
-          <span class="photo-cta">Plan this trip →</span>
-        </figure>
-      </div>
-    </div>
-  </section>
-
-  <!-- RESULTS -->
-  <section class="results-section" id="results">
-    <div class="section-inner">
-      <p class="section-tag">Your plan</p>
-      <h2 class="section-title" style="margin-bottom: 22px;">Your JetBuddie itinerary</h2>
-
-      <div class="results-grid">
-        <article id="result" class="result-card">
-          <div class="placeholder">
-            <div>
-              <div class="placeholder-icon">
-                <svg viewBox="0 0 24 24"><path d="M3 11.5 21 4l-7.5 18-2.6-7.8L3 11.5Z"/><path d="m11 14 4-4"/></svg>
-              </div>
-              <p class="placeholder-title">Your itinerary will appear here</p>
-              <p class="placeholder-sub">Search a destination above to get started</p>
-            </div>
-          </div>
-        </article>
-
-        <aside class="side-stack">
-          <section class="side-card" id="packing">
-            <div class="card-tag">Packing list</div>
-            <h3>Carry-on essentials</h3>
-            <ul id="packing-list">
-              <li>Comfortable walking shoes, already broken in</li>
-              <li>Portable charger, adapter, and downloaded maps</li>
-              <li>Reusable bottle, compact rain shell, day bag</li>
-              <li>Copies of passport, bookings, and insurance</li>
-            </ul>
-          </section>
-
-          <section class="side-card">
-            <div class="card-tag">Budget tips</div>
-            <h3>Spend where it matters</h3>
-            <ul id="budget-tips">
-              <li>Book central lodging to cut rideshare costs.</li>
-              <li>Use lunch specials, keep dinners casual.</li>
-              <li>Group nearby attractions to save on transit.</li>
-              <li>Reserve one paid experience; fill the rest free.</li>
-            </ul>
-          </section>
-        </aside>
-      </div>
-
-      <div id="book-bar" class="book-bar" style="display:none" aria-label="Book this trip">
-        <p class="book-bar-label">Ready to book? Find deals for <span id="book-destination">your destination</span></p>
-        <div class="book-bar-actions">
-          <a id="book-hotels-btn" class="book-btn book-btn-hotels" href="#" target="_blank" rel="noopener noreferrer">🏨 Book Hotels</a>
-          <a id="book-flights-btn" class="book-btn book-btn-flights" href="#" target="_blank" rel="noopener noreferrer">✈️ Find Flights</a>
+        <div class="trust-pills">
+          <span class="trust-pill">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Free to use
+          </span>
+          <span class="trust-pill">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Results in seconds
+          </span>
+          <span class="trust-pill">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Budget-focused advice
+          </span>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="footer-inner">
-      <div class="footer-brand">
-        <span class="footer-brand-icon">
-          <svg viewBox="0 0 24 24"><path d="M3 11.5 21 4l-7.5 18-2.6-7.8L3 11.5Z"/><path d="m11 14 4-4"/></svg>
-        </span>
-        JetBuddie
+    <section class="gallery-section" id="explore">
+      <div class="section-inner">
+        <p class="section-tag">Explore destinations</p>
+        <h2 class="section-title">Where will you go next?</h2>
+        <div class="photo-grid">
+          <figure class="photo-item tall" data-destination="Maldives" role="button" tabindex="0" aria-label="Plan a trip to Maldives">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" alt="Maldives beach" loading="lazy">
+            <div class="photo-overlay"></div>
+            <figcaption class="photo-label">Maldives</figcaption>
+            <span class="photo-cta">Plan this trip →</span>
+          </figure>
+          <figure class="photo-item" data-destination="Santorini Greece" role="button" tabindex="0" aria-label="Plan a trip to Santorini">
+            <img src="https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80" alt="Santorini Greece" loading="lazy">
+            <div class="photo-overlay"></div>
+            <figcaption class="photo-label">Santorini</figcaption>
+            <span class="photo-cta">Plan this trip →</span>
+          </figure>
+          <figure class="photo-item" data-destination="Dubai" role="button" tabindex="0" aria-label="Plan a trip to Dubai">
+            <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80" alt="Dubai skyline" loading="lazy">
+            <div class="photo-overlay"></div>
+            <figcaption class="photo-label">Dubai</figcaption>
+            <span class="photo-cta">Plan this trip →</span>
+          </figure>
+          <figure class="photo-item" data-destination="Dolomites Italy" role="button" tabindex="0" aria-label="Plan a trip to the Dolomites">
+            <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80" alt="Dolomites Italy" loading="lazy">
+            <div class="photo-overlay"></div>
+            <figcaption class="photo-label">Dolomites</figcaption>
+            <span class="photo-cta">Plan this trip →</span>
+          </figure>
+          <figure class="photo-item" data-destination="Taj Mahal India" role="button" tabindex="0" aria-label="Plan a trip to the Taj Mahal">
+            <img src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=800&q=80" alt="Taj Mahal India" loading="lazy">
+            <div class="photo-overlay"></div>
+            <figcaption class="photo-label">Taj Mahal</figcaption>
+            <span class="photo-cta">Plan this trip →</span>
+          </figure>
+          <figure class="photo-item tall" data-destination="Machu Picchu Peru" role="button" tabindex="0" aria-label="Plan a trip to Machu Picchu">
+            <img src="https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=800&q=80" alt="Machu Picchu Peru" loading="lazy">
+            <div class="photo-overlay"></div>
+            <figcaption class="photo-label">Machu Picchu</figcaption>
+            <span class="photo-cta">Plan this trip →</span>
+          </figure>
+        </div>
       </div>
-      <p>"Go farther without going broke" · jetbuddie.com</p>
-    </div>
-  </footer>
+    </section>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="footer-brand-icon">
+            <svg viewBox="0 0 24 24"><path d="M3 11.5 21 4l-7.5 18-2.6-7.8L3 11.5Z"/><path d="m11 14 4-4"/></svg>
+          </span>
+          JetBuddie
+        </div>
+        <p>"Go farther without going broke" · jetbuddie.com</p>
+      </div>
+    </footer>
+  </div>
 
   <script>
-    const form          = document.getElementById("itinerary-form");
-    const destInput     = document.getElementById("destination");
-    const statusEl      = document.getElementById("status");
-    const resultEl      = document.getElementById("result");
-    const packingEl     = document.getElementById("packing-list");
-    const budgetEl      = document.getElementById("budget-tips");
-    const submitBtn     = document.getElementById("submit-button");
-    const galleryItems  = document.querySelectorAll(".photo-item[data-destination]");
-    const bookBar       = document.getElementById("book-bar");
-    const bookDestEl    = document.getElementById("book-destination");
-    const bookHotelsBtn = document.getElementById("book-hotels-btn");
-    const bookFlightsBtn= document.getElementById("book-flights-btn");
-    let stream = null;
+    const form           = document.getElementById("itinerary-form");
+    const destInput      = document.getElementById("destination");
+    const statusEl       = document.getElementById("status");
+    const submitBtn      = document.getElementById("submit-button");
+    const galleryItems   = document.querySelectorAll(".photo-item[data-destination]");
 
-    // TODO: Replace with your real CJ Affiliate tracking URLs when approved
+    const screenSearch   = document.getElementById("screen-search");
+    const screenResult   = document.getElementById("screen-result");
+    const backBtn        = document.getElementById("back-btn");
+    const resultDestEl   = document.getElementById("result-dest-name");
+    const resultLengthEl = document.getElementById("result-trip-length");
+    const resultItinEl   = document.getElementById("result-itinerary");
+    const resultBookBar  = document.getElementById("result-book-bar");
+    const bookHotelsBtn  = document.getElementById("book-hotels-btn");
+    const bookFlightsBtn = document.getElementById("book-flights-btn");
+
+    let activeStream = null;
+
+    // TODO: Replace with real CJ Affiliate tracking URLs when approved
     const getHotelsUrl  = d => `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(d)}`;
     const getFlightsUrl = d => `https://www.google.com/travel/flights?q=flights+to+${encodeURIComponent(d)}`;
 
-    const defaultPacking = [
-      "Comfortable walking shoes, already broken in",
-      "Portable charger, adapter, and downloaded maps",
-      "Reusable bottle, compact rain shell, day bag",
-      "Copies of passport, bookings, and insurance"
-    ];
+    // Gallery destinations mapped to their existing Unsplash photos
+    const galleryPhotos = {
+      "maldives": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80",
+      "santorini greece": "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1920&q=80",
+      "dubai": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80",
+      "dolomites italy": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1920&q=80",
+      "taj mahal india": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1920&q=80",
+      "machu picchu peru": "https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=1920&q=80"
+    };
 
-    const defaultBudget = [
-      "Book central lodging to cut rideshare costs.",
-      "Use lunch specials, keep dinners casual.",
-      "Group nearby attractions to save on transit.",
-      "Reserve one paid experience; fill the rest free."
-    ];
+    function getPhotoUrl(destination) {
+      const key = destination.toLowerCase().trim();
+      return galleryPhotos[key]
+        || `https://source.unsplash.com/featured/1920x1080/?${encodeURIComponent(destination)},travel,landmark`;
+    }
+
+    function showResultScreen(destination, tripLength) {
+      resultDestEl.textContent = destination;
+      resultLengthEl.textContent = tripLength;
+      resultItinEl.innerHTML = `<div class="result-loading"><div class="spinner"></div><span>Building your itinerary...</span></div>`;
+      resultBookBar.style.display = "none";
+      screenResult.style.backgroundImage = `url(${getPhotoUrl(destination)})`;
+
+      screenSearch.classList.add("hidden");
+      screenResult.classList.add("visible");
+      document.body.style.overflow = "hidden";
+    }
+
+    function showSearchScreen() {
+      closeStream();
+      screenResult.classList.remove("visible");
+      screenSearch.classList.remove("hidden");
+      document.body.style.overflow = "";
+      statusEl.textContent = "";
+      statusEl.classList.remove("error");
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Plan my trip`;
+    }
+
+    backBtn.addEventListener("click", showSearchScreen);
+
+    function closeStream() {
+      if (activeStream) { activeStream.close(); activeStream = null; }
+    }
 
     function esc(v) {
       return v.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
@@ -866,53 +967,43 @@
       return out.join("");
     }
 
-    function renderList(el, items) {
-      el.innerHTML = items.map(i => `<li>${esc(i)}</li>`).join("");
+    function startStream(destination, tripLength) {
+      let md = "";
+      const params = new URLSearchParams({ destination, tripLength });
+      activeStream = new EventSource(`/api/itinerary/stream?${params}`);
+
+      activeStream.addEventListener("start", () => {
+        resultItinEl.innerHTML = "";
+      });
+
+      activeStream.addEventListener("token", msg => {
+        md += JSON.parse(msg.data).text;
+        resultItinEl.innerHTML = mdToHtml(md);
+        resultItinEl.scrollTop = resultItinEl.scrollHeight;
+      });
+
+      activeStream.addEventListener("done", msg => {
+        const d = JSON.parse(msg.data);
+        closeStream();
+        bookHotelsBtn.href = getHotelsUrl(d.destination);
+        bookFlightsBtn.href = getFlightsUrl(d.destination);
+        resultBookBar.style.display = "flex";
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Plan my trip`;
+      });
+
+      activeStream.addEventListener("error", msg => {
+        const err = msg.data ? JSON.parse(msg.data).error : "Something went wrong. Try again.";
+        resultItinEl.innerHTML = `<p style="color:rgba(255,255,255,0.6)">${esc(err)}</p>`;
+        closeStream();
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Plan my trip`;
+      });
     }
 
-    function packingFor(dest, len) {
-      return [
-        `Outfits for ${len} in ${dest} — pack light`,
-        "Shoes already broken in before departure",
-        "Portable charger, adapter, and offline maps",
-        "Compact toiletries, refillable bottle, day bag"
-      ];
-    }
-
-    function budgetFor(dest, len) {
-      return [
-        `Set one daily splurge for ${dest}, keep the rest flexible.`,
-        "Book lodging near transit before chasing the cheapest room.",
-        "Grocery breakfasts, lunch specials, and casual dinners stretch cash.",
-        "Bundle neighborhoods by day so transit stays predictable."
-      ];
-    }
-
-    function setLoading(on) {
-      submitBtn.disabled = on;
-      submitBtn.innerHTML = on
-        ? `<svg class="spin" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;stroke-width:2.5;fill:none;stroke-linecap:round"><circle cx="12" cy="12" r="9" stroke-opacity="0.25"/><path d="M12 3a9 9 0 0 1 9 9"/></svg> Generating...`
-        : `<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;stroke-width:2.5;fill:none;stroke-linecap:round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Plan my trip`;
-    }
-
-    function closeStream() {
-      if (stream) { stream.close(); stream = null; }
-    }
-
-    function placeholder(icon, title, sub) {
-      return `<div class="placeholder"><div>
-        <div class="placeholder-icon">
-          <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:#94A3B8;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round">${icon}</svg>
-        </div>
-        <p class="placeholder-title">${title}</p>
-        <p class="placeholder-sub">${sub}</p>
-      </div></div>`;
-    }
-
-    function triggerDestination(dest) {
-      destInput.value = dest;
-      document.getElementById("planner").scrollIntoView({ behavior: "smooth", block: "center" });
-      setTimeout(() => form.requestSubmit(), 750);
+    function triggerDestination(destination) {
+      destInput.value = destination;
+      setTimeout(() => form.requestSubmit(), 100);
     }
 
     galleryItems.forEach(item => {
@@ -930,60 +1021,11 @@
       const len  = new FormData(form).get("tripLength") || "3 days";
       if (!dest) { destInput.focus(); return; }
 
-      statusEl.textContent = `Building your ${len} plan for ${dest}...`;
-      statusEl.classList.remove("error");
-      bookBar.style.display = "none";
-      resultEl.innerHTML = placeholder(
-        '<path d="M3 11.5 21 4l-7.5 18-2.6-7.8L3 11.5Z"/><path d="m11 14 4-4"/>',
-        "Generating your itinerary...",
-        "This usually takes about 10 seconds"
-      );
-      renderList(packingEl, packingFor(dest, len));
-      renderList(budgetEl,  budgetFor(dest, len));
-      setLoading(true);
-      document.getElementById("results").scrollIntoView({ behavior: "smooth", block: "start" });
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<div class="spinner" style="width:16px;height:16px;border-color:rgba(255,255,255,0.3);border-top-color:white"></div> Generating...`;
 
-      let md = "";
-      const params = new URLSearchParams({ destination: dest, tripLength: len });
-      stream = new EventSource(`/api/itinerary/stream?${params}`);
-
-      stream.addEventListener("start", msg => {
-        const d = JSON.parse(msg.data);
-        statusEl.textContent = `Streaming ${d.tripLength} itinerary for ${d.destination}...`;
-        resultEl.innerHTML = "";
-      });
-
-      stream.addEventListener("token", msg => {
-        md += JSON.parse(msg.data).text;
-        resultEl.innerHTML = mdToHtml(md);
-        resultEl.scrollTop = resultEl.scrollHeight;
-      });
-
-      stream.addEventListener("done", msg => {
-        const d = JSON.parse(msg.data);
-        statusEl.textContent = `${d.tripLength} itinerary ready for ${d.destination} ✓`;
-        setLoading(false);
-        closeStream();
-        bookDestEl.textContent = d.destination;
-        bookHotelsBtn.href = getHotelsUrl(d.destination);
-        bookFlightsBtn.href = getFlightsUrl(d.destination);
-        bookBar.style.display = "flex";
-      });
-
-      stream.addEventListener("error", msg => {
-        const err = msg.data ? JSON.parse(msg.data).error : "Stream interrupted.";
-        statusEl.textContent = err;
-        statusEl.classList.add("error");
-        resultEl.innerHTML = placeholder(
-          '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>',
-          "Something went wrong",
-          "Try another destination or refresh the page"
-        );
-        renderList(packingEl, defaultPacking);
-        renderList(budgetEl,  defaultBudget);
-        setLoading(false);
-        closeStream();
-      });
+      showResultScreen(dest, len);
+      startStream(dest, len);
     });
   </script>
 </body>
