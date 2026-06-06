@@ -1064,6 +1064,7 @@
     function startStream(message) {
       let raw = "";
       let destParsed = false;
+      let photoFetched = false;
       let detectedDest = "";
 
       const params = new URLSearchParams({ message });
@@ -1076,16 +1077,23 @@
       activeStream.addEventListener("token", msg => {
         raw += JSON.parse(msg.data).text;
 
-        // Parse DESTINATION: line as soon as it arrives, then fetch real photo
+        // Parse DESTINATION line
         if (!destParsed) {
           const match = raw.match(/^DESTINATION:\s*(.+?)(\n|$)/i);
           if (match) {
             detectedDest = match[1].trim();
             destParsed = true;
             resultDestEl.textContent = detectedDest;
-            // Set fallback immediately, then swap in the real photo
-            resultBgPhoto.style.backgroundImage = `url(${getPhotoUrl(detectedDest)})`;
-            fetchRealPhoto(detectedDest).then(url => {
+          }
+        }
+
+        // Parse PHOTO_QUERY line and fetch real photo as soon as we have it
+        if (destParsed && !photoFetched) {
+          const photoMatch = raw.match(/^PHOTO_QUERY:\s*(.+?)(\n|$)/im);
+          if (photoMatch) {
+            photoFetched = true;
+            const query = photoMatch[1].trim();
+            fetchRealPhoto(query).then(url => {
               const img = new Image();
               img.onload = () => { resultBgPhoto.style.backgroundImage = `url(${url})`; };
               img.src = url;
@@ -1093,8 +1101,11 @@
           }
         }
 
-        // Show itinerary without the DESTINATION line
-        const itinerary = raw.replace(/^DESTINATION:.*\n?/i, "").trim();
+        // Show itinerary — strip the metadata lines
+        const itinerary = raw
+          .replace(/^DESTINATION:.*\n?/im, "")
+          .replace(/^PHOTO_QUERY:.*\n?/im, "")
+          .trim();
         if (itinerary) {
           resultItinEl.innerHTML = mdToHtml(itinerary);
           resultItinEl.scrollTop = resultItinEl.scrollHeight;

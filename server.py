@@ -47,9 +47,9 @@ def fetch_photo_url(destination):
         from urllib.request import urlopen, Request
         from urllib.parse import urlencode
         params = urlencode({
-            "query": f"{destination} travel landmark",
+            "query": destination,
             "orientation": "landscape",
-            "per_page": 1,
+            "per_page": 3,
             "content_filter": "high",
         })
         req = Request(
@@ -72,8 +72,9 @@ A traveler just sent you this message: "{message}"
 
 You're their well-travelled friend. Reply with a punchy, personalized travel plan.
 
-Your FIRST line must be exactly this format (no extra text):
+Your FIRST TWO lines must be exactly this format (no extra text):
 DESTINATION: [the place name or best guess — e.g. "Hudson, WI" or "Hawaii" or "Amalfi Coast"]
+PHOTO_QUERY: [3-5 descriptive words for a photo search that will find a beautiful, accurate image of this specific place — e.g. "Hudson Wisconsin St Croix River" or "Waikiki Beach Hawaii turquoise water" or "Santorini white buildings blue domes"]
 
 Then write the travel plan. Rules:
 - Casual, direct, fun — like texting a friend who's been there.
