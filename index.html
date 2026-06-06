@@ -404,95 +404,62 @@
       margin: 0 auto 40px;
     }
 
-    .search-form {
+
+    /* Chat input */
+    .chat-input-wrap {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      max-width: 720px;
+      margin: 0 auto;
       background: white;
       border-radius: 18px;
       border: 1.5px solid var(--border);
       box-shadow: var(--shadow);
-      padding: 10px 10px 10px 24px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      max-width: 720px;
-      margin: 0 auto 14px;
+      padding: 14px 14px 14px 22px;
+      transition: border-color 200ms, box-shadow 200ms;
     }
 
-    .search-input {
+    .chat-input-wrap:focus-within {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(37,99,235,0.08), var(--shadow);
+    }
+
+    .chat-input {
       flex: 1;
-      min-width: 0;
       border: none;
       outline: none;
       font: inherit;
       font-size: 1rem;
-      font-weight: 500;
       color: var(--text);
       background: transparent;
+      resize: none;
+      line-height: 1.55;
+      max-height: 140px;
+      overflow-y: auto;
     }
 
-    .search-input::placeholder { color: #9CA3AF; font-weight: 400; }
+    .chat-input::placeholder { color: #9CA3AF; }
 
-    .search-divider {
-      width: 1px; height: 26px;
-      background: var(--border);
-      flex-shrink: 0;
-    }
-
-    .length-picker {
-      display: flex;
-      gap: 3px;
-      flex-shrink: 0;
-    }
-
-    .length-picker input {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .length-picker label { display: block; }
-
-    .length-picker span {
-      display: inline-flex;
-      align-items: center;
-      height: 34px;
-      padding: 0 13px;
-      border-radius: 8px;
-      font-size: 0.86rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 150ms, color 150ms;
-    }
-
-    .length-picker span:hover { background: var(--bg-alt); color: var(--text); }
-    .length-picker input:checked + span { background: var(--blue-light); color: var(--blue); }
-
-    .search-btn {
-      height: 50px;
-      min-width: 148px;
+    .chat-send-btn {
+      width: 44px; height: 44px;
       background: linear-gradient(135deg, var(--blue), #4F46E5);
-      color: white;
       border: none;
       border-radius: 12px;
-      font: inherit;
-      font-size: 0.93rem;
-      font-weight: 700;
+      color: white;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+      display: grid;
+      place-items: center;
       flex-shrink: 0;
-      transition: opacity 160ms, transform 160ms;
+      transition: opacity 150ms, transform 150ms;
     }
 
-    .search-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-    .search-btn:disabled { opacity: 0.55; cursor: wait; transform: none; }
+    .chat-send-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .chat-send-btn:disabled { opacity: 0.45; cursor: wait; transform: none; }
 
-    .search-btn svg {
-      width: 16px; height: 16px;
-      stroke: currentColor; stroke-width: 2.5;
+    .chat-send-btn svg {
+      width: 17px; height: 17px;
+      stroke: white; stroke-width: 2;
       fill: none; stroke-linecap: round; stroke-linejoin: round;
     }
 
@@ -501,36 +468,43 @@
       color: var(--text-muted);
       text-align: center;
       min-height: 20px;
-      margin-bottom: 36px;
+      margin-bottom: 16px;
     }
 
     .status-msg.error { color: #EF4444; }
 
-    .trust-pills {
+    /* Example chips */
+    .example-chips {
       display: flex;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
+      margin-bottom: 10px;
     }
 
-    .trust-pill {
+    .chip {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      height: 32px;
-      padding: 0 13px;
+      gap: 5px;
+      height: 34px;
+      padding: 0 14px;
       background: var(--bg-alt);
       border: 1px solid var(--border);
       border-radius: 999px;
-      font-size: 0.8rem;
+      font: inherit;
+      font-size: 0.82rem;
       font-weight: 600;
       color: var(--text-muted);
+      cursor: pointer;
+      transition: background 150ms, border-color 150ms, color 150ms, transform 150ms;
+      white-space: nowrap;
     }
 
-    .trust-pill svg {
-      width: 13px; height: 13px;
-      stroke: #22C55E; stroke-width: 2.5;
-      fill: none; stroke-linecap: round; stroke-linejoin: round;
+    .chip:hover {
+      background: var(--blue-light);
+      border-color: #BFDBFE;
+      color: var(--blue);
+      transform: translateY(-1px);
     }
 
     /* ── GALLERY ── */
@@ -775,45 +749,29 @@
         <h1>Go farther<br>without going <span class="accent">broke</span></h1>
         <p class="hero-sub">Enter your dream destination and get a full itinerary, hotel picks, and budget tips — instantly.</p>
 
-        <form id="itinerary-form">
-          <div id="planner" class="search-form">
-            <input
-              id="destination"
-              name="destination"
-              type="text"
-              class="search-input"
-              autocomplete="off"
-              placeholder="Where do you want to go?"
+        <form id="itinerary-form" id="planner">
+          <div class="chat-input-wrap">
+            <textarea
+              id="message-input"
+              class="chat-input"
+              placeholder="Tell me about your trip... e.g. &quot;Honeymoon somewhere beachy with white sand and clear blue water&quot;"
+              rows="1"
               required
-            >
-            <div class="search-divider"></div>
-            <div class="length-picker" role="radiogroup" aria-label="Trip length">
-              <label><input type="radio" name="tripLength" value="3 days" checked><span>3 days</span></label>
-              <label><input type="radio" name="tripLength" value="5 days"><span>5 days</span></label>
-              <label><input type="radio" name="tripLength" value="1 week"><span>1 week</span></label>
-            </div>
-            <button id="submit-button" type="submit" class="search-btn">
-              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-              Plan my trip
+            ></textarea>
+            <button id="submit-button" type="submit" class="chat-send-btn" aria-label="Send">
+              <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             </button>
           </div>
         </form>
 
         <p id="status" class="status-msg" role="status" aria-live="polite"></p>
 
-        <div class="trust-pills">
-          <span class="trust-pill">
-            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-            Free to use
-          </span>
-          <span class="trust-pill">
-            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-            Results in seconds
-          </span>
-          <span class="trust-pill">
-            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-            Budget-focused advice
-          </span>
+        <div class="example-chips">
+          <button class="chip" data-msg="I want to travel to Paris for a romantic weekend with my partner">🗼 Romantic Paris weekend</button>
+          <button class="chip" data-msg="Honeymoon somewhere beachy with white sand and crystal clear water, Hawaii vibes">🏝️ Beachy honeymoon</button>
+          <button class="chip" data-msg="Trip to Tokyo for 5 days, first time in Japan, want to see everything">🗾 Tokyo 5 days</button>
+          <button class="chip" data-msg="Budget trip to Bali for a week, 2 people, want nature and culture">🌿 Bali on a budget</button>
+          <button class="chip" data-msg="Long weekend in New York City, 4 people, food and sightseeing">🗽 NYC long weekend</button>
         </div>
       </div>
     </section>
@@ -878,10 +836,11 @@
 
   <script>
     const form           = document.getElementById("itinerary-form");
-    const destInput      = document.getElementById("destination");
+    const msgInput       = document.getElementById("message-input");
     const statusEl       = document.getElementById("status");
     const submitBtn      = document.getElementById("submit-button");
     const galleryItems   = document.querySelectorAll(".photo-item[data-destination]");
+    const chips          = document.querySelectorAll(".chip");
 
     const screenSearch   = document.getElementById("screen-search");
     const screenResult   = document.getElementById("screen-result");
@@ -895,6 +854,26 @@
     const bookFlightsBtn = document.getElementById("book-flights-btn");
 
     let activeStream = null;
+
+    // Auto-grow textarea
+    msgInput.addEventListener("input", () => {
+      msgInput.style.height = "auto";
+      msgInput.style.height = Math.min(msgInput.scrollHeight, 140) + "px";
+    });
+
+    // Submit on Enter (Shift+Enter for newline)
+    msgInput.addEventListener("keydown", e => {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); }
+    });
+
+    // Example chips
+    chips.forEach(chip => {
+      chip.addEventListener("click", () => {
+        msgInput.value = chip.dataset.msg;
+        msgInput.dispatchEvent(new Event("input"));
+        form.requestSubmit();
+      });
+    });
 
     // TODO: Replace with real CJ Affiliate tracking URLs when approved
     const getHotelsUrl  = d => `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(d)}`;
@@ -1012,13 +991,14 @@
       return `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1920&q=80`;
     }
 
-    function showResultScreen(destination, tripLength) {
-      resultDestEl.textContent = destination;
-      resultLengthEl.textContent = tripLength;
-      resultItinEl.innerHTML = `<div class="result-loading"><div class="spinner"></div><span>Building your itinerary...</span></div>`;
+    function showResultScreen() {
+      resultDestEl.textContent = "";
+      resultLengthEl.textContent = "";
+      resultItinEl.innerHTML = `<div class="result-loading"><div class="spinner"></div><span>Building your plan...</span></div>`;
       resultBookBar.style.display = "none";
-      resultBgPhoto.style.backgroundImage = `url(${getPhotoUrl(destination)})`;
-
+      // Start with a beautiful fallback photo; will update once destination is parsed
+      const fallbackId = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+      resultBgPhoto.style.backgroundImage = `url(https://images.unsplash.com/${fallbackId}?auto=format&fit=crop&w=1920&q=80)`;
       screenSearch.classList.add("hidden");
       screenResult.classList.add("visible");
       document.body.style.overflow = "hidden";
@@ -1032,7 +1012,6 @@
       statusEl.textContent = "";
       statusEl.classList.remove("error");
       submitBtn.disabled = false;
-      submitBtn.innerHTML = `<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Plan my trip`;
     }
 
     backBtn.addEventListener("click", showSearchScreen);
@@ -1073,9 +1052,12 @@
       return out.join("");
     }
 
-    function startStream(destination, tripLength) {
-      let md = "";
-      const params = new URLSearchParams({ destination, tripLength });
+    function startStream(message) {
+      let raw = "";
+      let destParsed = false;
+      let detectedDest = "";
+
+      const params = new URLSearchParams({ message });
       activeStream = new EventSource(`/api/itinerary/stream?${params}`);
 
       activeStream.addEventListener("start", () => {
@@ -1083,19 +1065,33 @@
       });
 
       activeStream.addEventListener("token", msg => {
-        md += JSON.parse(msg.data).text;
-        resultItinEl.innerHTML = mdToHtml(md);
-        resultItinEl.scrollTop = resultItinEl.scrollHeight;
+        raw += JSON.parse(msg.data).text;
+
+        // Parse DESTINATION: line as soon as it arrives
+        if (!destParsed) {
+          const match = raw.match(/^DESTINATION:\s*(.+?)(\n|$)/i);
+          if (match) {
+            detectedDest = match[1].trim();
+            destParsed = true;
+            resultDestEl.textContent = detectedDest;
+            resultBgPhoto.style.backgroundImage = `url(${getPhotoUrl(detectedDest)})`;
+          }
+        }
+
+        // Show itinerary content without the DESTINATION line
+        const itinerary = raw.replace(/^DESTINATION:.*\n?/i, "").trim();
+        if (itinerary) {
+          resultItinEl.innerHTML = mdToHtml(itinerary);
+          resultItinEl.scrollTop = resultItinEl.scrollHeight;
+        }
       });
 
-      activeStream.addEventListener("done", msg => {
-        const d = JSON.parse(msg.data);
+      activeStream.addEventListener("done", () => {
         closeStream();
-        bookHotelsBtn.href = getHotelsUrl(d.destination);
-        bookFlightsBtn.href = getFlightsUrl(d.destination);
+        bookHotelsBtn.href = getHotelsUrl(detectedDest || message);
+        bookFlightsBtn.href = getFlightsUrl(detectedDest || message);
         resultBookBar.style.display = "flex";
         submitBtn.disabled = false;
-        submitBtn.innerHTML = `<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Plan my trip`;
       });
 
       activeStream.addEventListener("error", msg => {
@@ -1103,19 +1099,19 @@
         resultItinEl.innerHTML = `<p style="color:rgba(255,255,255,0.6)">${esc(err)}</p>`;
         closeStream();
         submitBtn.disabled = false;
-        submitBtn.innerHTML = `<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Plan my trip`;
       });
     }
 
-    function triggerDestination(destination) {
-      destInput.value = destination;
+    function triggerMessage(msg) {
+      msgInput.value = msg;
+      msgInput.dispatchEvent(new Event("input"));
       setTimeout(() => form.requestSubmit(), 100);
     }
 
     galleryItems.forEach(item => {
-      item.addEventListener("click", () => triggerDestination(item.dataset.destination));
+      item.addEventListener("click", () => triggerMessage(`I want to visit ${item.dataset.destination}`));
       item.addEventListener("keydown", e => {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); triggerDestination(item.dataset.destination); }
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); triggerMessage(`I want to visit ${item.dataset.destination}`); }
       });
     });
 
@@ -1123,15 +1119,12 @@
       e.preventDefault();
       closeStream();
 
-      const dest = destInput.value.trim();
-      const len  = new FormData(form).get("tripLength") || "3 days";
-      if (!dest) { destInput.focus(); return; }
+      const message = msgInput.value.trim();
+      if (!message) { msgInput.focus(); return; }
 
       submitBtn.disabled = true;
-      submitBtn.innerHTML = `<div class="spinner" style="width:16px;height:16px;border-color:rgba(255,255,255,0.3);border-top-color:white"></div> Generating...`;
-
-      showResultScreen(dest, len);
-      startStream(dest, len);
+      showResultScreen();
+      startStream(message);
     });
   </script>
 </body>

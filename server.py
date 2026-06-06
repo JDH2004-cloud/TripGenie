@@ -38,45 +38,28 @@ def safe_print(message):
         print(str(message).encode("ascii", errors="backslashreplace").decode("ascii"))
 
 
-def build_prompt(destination, trip_length="3 days"):
+def build_prompt(message):
     return f"""
-You're a well-travelled friend texting someone their {trip_length} plan for {destination}. Keep it casual, direct, and fun — like you've actually been there.
+A traveler just sent you this message: "{message}"
 
-Format:
-- One line per day (Day 1, Day 2, etc.) — short, punchy sentences. No fluff.
-- A "Where to stay" section with 2 options: one budget, one splurge. Include rough nightly price.
-- A "Don't miss" line — one single thing they absolutely have to do.
+You're their well-travelled friend. Reply with a punchy, personalized travel plan.
 
-Rules:
-- Write like a human, not a travel brochure.
-- Short sentences. Fragments are fine.
-- No bullet points inside the day descriptions — just one or two punchy sentences per day.
-- Total response under 200 words.
+Your FIRST line must be exactly this format (no extra text):
+DESTINATION: [the place name or best guess — e.g. "Hudson, WI" or "Hawaii" or "Amalfi Coast"]
+
+Then write the travel plan. Rules:
+- Casual, direct, fun — like texting a friend who's been there.
+- Short sentences. Fragments are fine. No travel brochure language.
+- If they gave a trip length, use it. Otherwise default to 3 days.
+- Day-by-day plan (Day 1, Day 2, etc.) — one or two punchy sentences each.
+- "Where to stay:" — one budget pick, one splurge, with rough nightly price.
+- "Don't miss:" — one single must-do thing.
+- Address any specific requests they made (group size, vibe, occasion, budget).
+- Total under 220 words.
 """.strip()
 
 
-def build_itinerary(destination, trip_length="3 days"):
-    client = anthropic.Anthropic()
-
-    message = client.messages.create(
-        model=MODEL,
-        max_tokens=2500,
-        system=(
-            "You are a well-travelled friend giving honest, casual travel advice. "
-            "Short sentences. Real recommendations. No filler."
-        ),
-        messages=[{"role": "user", "content": build_prompt(destination, trip_length)}],
-    )
-
-    text_blocks = (
-        str(block.text)
-        for block in message.content
-        if getattr(block, "type", None) == "text"
-    )
-    return "\n".join(text_blocks)
-
-
-def stream_itinerary_words(destination, trip_length="3 days"):
+def stream_itinerary_words(message):
     client = anthropic.Anthropic()
     pending = ""
 
@@ -87,7 +70,7 @@ def stream_itinerary_words(destination, trip_length="3 days"):
             "You are a well-travelled friend giving honest, casual travel advice. "
             "Short sentences. Real recommendations. No filler."
         ),
-        messages=[{"role": "user", "content": build_prompt(destination, trip_length)}],
+        messages=[{"role": "user", "content": build_prompt(message)}],
     ) as stream:
         for text in stream.text_stream:
             pending += text
@@ -129,14 +112,11 @@ class TravelRequestHandler(BaseHTTPRequestHandler):
             return
 
         query = parse_qs(query_string)
-        destination = str((query.get("destination") or [""])[0]).strip()
-        trip_length = str((query.get("tripLength") or ["3 days"])[0]).strip()
+        message = str((query.get("message") or [""])[0]).strip()
 
-        if not destination:
-            self.send_sse_error("Destination is required.", HTTPStatus.BAD_REQUEST)
+        if not message:
+            self.send_sse_error("Message is required.", HTTPStatus.BAD_REQUEST)
             return
-        if trip_length not in {"3 days", "5 days", "1 week"}:
-            trip_length = "3 days"
 
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-Type", "text/event-stream; charset=utf-8")
@@ -145,13 +125,10 @@ class TravelRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
         try:
-            self.write_sse(
-                "start",
-                {"destination": destination, "tripLength": trip_length},
-            )
-            for word in stream_itinerary_words(destination, trip_length):
+            self.write_sse("start", {"message": message})
+            for word in stream_itinerary_words(message):
                 self.write_sse("token", {"text": word})
-            self.write_sse("done", {"destination": destination, "tripLength": trip_length})
+            self.write_sse("done", {"message": message})
         except (BrokenPipeError, ConnectionResetError):
             return
         except Exception as exc:
@@ -162,44 +139,7 @@ class TravelRequestHandler(BaseHTTPRequestHandler):
                 return
 
     def do_POST(self):
-        if self.path != "/api/itinerary":
-            self.send_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
-            return
-
-        if not os.getenv("ANTHROPIC_API_KEY"):
-            self.send_json(
-                {"error": "Set the ANTHROPIC_API_KEY environment variable first."},
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-            )
-            return
-
-        try:
-            content_length = int(self.headers.get("Content-Length", "0"))
-            body = self.rfile.read(content_length) or b"{}"
-            payload = json.loads(body.decode("utf-8"))
-        except UnicodeDecodeError:
-            self.send_json({"error": "Request body must be UTF-8 encoded."}, HTTPStatus.BAD_REQUEST)
-            return
-        except (ValueError, json.JSONDecodeError):
-            self.send_json({"error": "Request body must be valid JSON."}, HTTPStatus.BAD_REQUEST)
-            return
-
-        destination = str(payload.get("destination", "")).strip()
-        trip_length = str(payload.get("tripLength", "3 days")).strip()
-        if not destination:
-            self.send_json({"error": "Destination is required."}, HTTPStatus.BAD_REQUEST)
-            return
-        if trip_length not in {"3 days", "5 days", "1 week"}:
-            trip_length = "3 days"
-
-        try:
-            itinerary = build_itinerary(destination, trip_length)
-        except Exception as exc:
-            traceback.print_exc()
-            self.send_json({"error": f"Could not generate an itinerary: {exc}"}, HTTPStatus.INTERNAL_SERVER_ERROR)
-            return
-
-        self.send_json({"destination": destination, "tripLength": trip_length, "itinerary": itinerary})
+        self.send_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
 
     def serve_index(self):
         index_path = BASE_DIR / "index.html"
