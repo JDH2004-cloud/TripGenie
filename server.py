@@ -40,14 +40,18 @@ def safe_print(message):
 
 def build_prompt(destination, trip_length="3 days"):
     return f"""
-Create a short, scannable {trip_length} travel itinerary for {destination}.
+You're a well-travelled friend texting someone their {trip_length} plan for {destination}. Keep it casual, direct, and fun — like you've actually been there.
 
-Include:
-- 5-7 bullet points of the top things to do
-- 2-3 hotel or accommodation recommendations with price ranges
-- A short packing list of 5-6 essential items
+Format:
+- One line per day (Day 1, Day 2, etc.) — short, punchy sentences. No fluff.
+- A "Where to stay" section with 2 options: one budget, one splurge. Include rough nightly price.
+- A "Don't miss" line — one single thing they absolutely have to do.
 
-Keep it punchy and easy to scan. Use bullets only, no long paragraphs, and stay under 300 words total.
+Rules:
+- Write like a human, not a travel brochure.
+- Short sentences. Fragments are fine.
+- No bullet points inside the day descriptions — just one or two punchy sentences per day.
+- Total response under 200 words.
 """.strip()
 
 
@@ -58,8 +62,8 @@ def build_itinerary(destination, trip_length="3 days"):
         model=MODEL,
         max_tokens=2500,
         system=(
-            "You are an expert travel planner. Build specific, useful itineraries "
-            "with realistic pacing and practical advice."
+            "You are a well-travelled friend giving honest, casual travel advice. "
+            "Short sentences. Real recommendations. No filler."
         ),
         messages=[{"role": "user", "content": build_prompt(destination, trip_length)}],
     )
@@ -80,8 +84,8 @@ def stream_itinerary_words(destination, trip_length="3 days"):
         model=MODEL,
         max_tokens=2500,
         system=(
-            "You are an expert travel planner. Build specific, useful itineraries "
-            "with realistic pacing and practical advice."
+            "You are a well-travelled friend giving honest, casual travel advice. "
+            "Short sentences. Real recommendations. No filler."
         ),
         messages=[{"role": "user", "content": build_prompt(destination, trip_length)}],
     ) as stream:
